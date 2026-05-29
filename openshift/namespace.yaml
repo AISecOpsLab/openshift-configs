@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aisecops
+  labels:
+    managed-by: aisecops-agent
+    env: prod

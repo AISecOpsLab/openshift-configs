@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-srv-web-02-sshd
+  namespace: aisecops
+  labels:
+    app: srv-web-02
+    service: sshd
+    managed-by: aisecops-agent
+data:
+  sshd_config: |
+    # sshd_config — srv-web-02
+    # Ubuntu 24.04 LTS | Rôle : reverse proxy nginx
+    # CMDB : cmdb/srv-web-02.md
+
+    # ─── Réseau ───────────────────────────────────────────────────────────────────
+    Port 22
+    AddressFamily any
+    ListenAddress 0.0.0.0
+    ListenAddress ::
+
+    # ─── Authentification ─────────────────────────────────────────────────────────
+    LoginGraceTime 120
+    PermitRootLogin no
+    StrictModes yes
+    MaxAuthTries 6
+    MaxSessions 10
+    MaxStartups 2:30:10
+
+    PubkeyAuthentication yes
+    AuthorizedKeysFile .ssh/authorized_keys
+
+    PasswordAuthentication no
+    PermitEmptyPasswords no
+
+    KbdInteractiveAuthentication no
+
+    # ─── PAM / environnement ──────────────────────────────────────────────────────
+    UsePAM yes
+    AcceptEnv LANG LC_*
+
+    # ─── Fonctionnalités désactivées ──────────────────────────────────────────────
+    X11Forwarding no
+    PrintMotd no
+    AllowAgentForwarding no
+    AllowTcpForwarding no
+    GatewayPorts no
+    PermitTunnel no
+
+    # ─── Journalisation ───────────────────────────────────────────────────────────
+    SyslogFacility AUTH
+    LogLevel INFO
+
+    # ─── SFTP ─────────────────────────────────────────────────────────────────────
+    Subsystem sftp /usr/lib/openssh/sftp-server

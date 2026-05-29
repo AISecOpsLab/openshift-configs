@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-srv-db-01-sshd
+  namespace: aisecops
+  labels:
+    app: srv-db-01
+    service: sshd
+    managed-by: aisecops-agent
+data:
+  sshd_config: |
+    # sshd_config — srv-db-01
+    # Ubuntu 24.04 LTS | Rôle : base de données PostgreSQL (criticité CRITIQUE)
+    # CMDB : cmdb/srv-db-01.md
+    # Accès SSH interne uniquement — aucune exposition publique
+
+    # ─── Réseau ───────────────────────────────────────────────────────────────────
+    Port 22
+    AddressFamily inet
+    # Écoute uniquement sur l'interface interne
+    ListenAddress 10.0.3.20
+
+    # ─── Authentification ─────────────────────────────────────────────────────────
+    LoginGraceTime 30
+    PermitRootLogin no
+    StrictModes yes
+    MaxAuthTries 3
+    MaxSessions 3
+    MaxStartups 3:100:5
+
+    PubkeyAuthentication yes
+    AuthorizedKeysFile .ssh/authorized_keys
+
+    PasswordAuthentication no
+    PermitEmptyPasswords no
+
+    KbdInteractiveAuthentication no
+
+    # ─── Restriction stricte des utilisateurs ─────────────────────────────────────
+    AllowGroups dba-team ops-team
+
+    # ─── PAM / environnement ──────────────────────────────────────────────────────
+    UsePAM yes
+    AcceptEnv LANG LC_*
+
+    # ─── Fonctionnalités désactivées ──────────────────────────────────────────────
+    X11Forwarding no
+    PrintMotd no
+    AllowAgentForwarding no
+    AllowTcpForwarding no
+    GatewayPorts no
+    PermitTunnel no
+
+    # ─── Délai de déconnexion des sessions inactives ──────────────────────────────
+    ClientAliveInterval 180
+    ClientAliveCountMax 2
+
+    # ─── Journalisation ───────────────────────────────────────────────────────────
+    SyslogFacility AUTHPRIV
+    LogLevel VERBOSE
+
+    # ─── SFTP ─────────────────────────────────────────────────────────────────────
+    Subsystem sftp /usr/lib/openssh/sftp-server
