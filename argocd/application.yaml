@@ -9,10 +9,8 @@ spec:
   project: default
 
   source:
-    # Remplacer par l'URL du dépôt GitHub openshift-configs
-    repoURL: https://github.com/VOTRE_ORG/openshift-configs.git
+    repoURL: https://github.com/AISecOpsLab/openshift-configs.git
     targetRevision: main
-    # ArgoCD lit tous les manifests depuis la racine du dépôt
     path: .
 
   destination:
@@ -20,8 +18,6 @@ spec:
     namespace: aisecops
 
   syncPolicy:
-    # Sync MANUEL uniquement — l'humain valide et merge la PR, puis déclenche la sync
-    # Ne pas activer automated.selfHeal en production sans validation HITL
     syncOptions:
       - CreateNamespace=true
       - PrunePropagationPolicy=foreground
