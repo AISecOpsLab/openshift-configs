@@ -14,6 +14,7 @@ spec:
     path: .
     directory:
       recurse: true
+      exclude: "argocd/**"
 
   destination:
     server: https://kubernetes.default.svc
