@@ -13,11 +13,10 @@ data:
     # Rôle : reverse proxy avec load balancing vers srv-app-01 et srv-app-02
     # CMDB : cmdb/srv-web-02.md
 
-    user www-data;
+    user nginx;
     worker_processes auto;
-    pid /run/nginx.pid;
+    pid /tmp/nginx.pid;
     error_log /var/log/nginx/error.log;
-    include /etc/nginx/modules-enabled/*.conf;
 
     events {
         worker_connections 1024;
@@ -37,17 +36,13 @@ data:
         include /etc/nginx/mime.types;
         default_type application/octet-stream;
 
-        ## SSL Settings
+        ## SSL Settings (activer en prod avec certificats réels)
         ssl_protocols TLSv1.2 TLSv1.3;
         ssl_prefer_server_ciphers on;
         ssl_ciphers "TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256";
         ssl_session_cache shared:SSL:10m;
         ssl_session_timeout 1d;
         ssl_session_tickets off;
-        ssl_stapling on;
-        ssl_stapling_verify on;
-        resolver 1.1.1.1 8.8.8.8 valid=300s;
-        resolver_timeout 5s;
 
         ## Logging
         log_format main '$remote_addr - $remote_user [$time_local] "$request" '
@@ -67,11 +62,11 @@ data:
         limit_req_zone $binary_remote_addr zone=api:10m rate=20r/s;
         limit_conn_zone $binary_remote_addr zone=conn_limit:10m;
 
-        ## Upstream — load balancing round-robin vers les serveurs applicatifs
+        ## Upstream — load balancing vers les serveurs applicatifs
         upstream backend_api {
             least_conn;
-            server 10.0.2.10:8080 max_fails=3 fail_timeout=30s;
-            server 10.0.2.11:8080 max_fails=3 fail_timeout=30s;
+            server srv-app-01:8080 max_fails=3 fail_timeout=30s;
+            server srv-app-02:8080 max_fails=3 fail_timeout=30s;
             keepalive 32;
         }
 
@@ -80,60 +75,40 @@ data:
         add_header X-Content-Type-Options "nosniff" always;
         add_header Referrer-Policy "strict-origin-when-cross-origin" always;
         add_header X-XSS-Protection "1; mode=block" always;
-        add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
         add_header Content-Security-Policy "default-src 'self'; object-src 'none'; frame-ancestors 'self';" always;
 
-        include /etc/nginx/conf.d/*.conf;
-        include /etc/nginx/sites-enabled/*;
-    }
+        server {
+            listen 80;
+            listen [::]:80;
+            server_name srv-web-02.example.com _;
 
-    server {
-        listen 80;
-        listen [::]:80;
-        server_name srv-web-02.example.com;
+            ## Limite de connexions simultanées par IP
+            limit_conn conn_limit 20;
 
-        return 301 https://$host$request_uri;
-    }
+            location /api/ {
+                limit_req zone=api burst=40 nodelay;
 
-    server {
-        listen 443 ssl http2;
-        listen [::]:443 ssl http2;
-        server_name srv-web-02.example.com;
+                proxy_pass         http://backend_api;
+                proxy_http_version 1.1;
+                proxy_set_header   Connection "";
+                proxy_set_header   Host              $host;
+                proxy_set_header   X-Real-IP         $remote_addr;
+                proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+                proxy_set_header   X-Forwarded-Proto $scheme;
 
-        ssl_certificate     /etc/ssl/certs/srv-web-02.crt;
-        ssl_certificate_key /etc/ssl/private/srv-web-02.key;
-        ssl_trusted_certificate /etc/ssl/certs/srv-web-02-chain.pem;
-        ssl_dhparam         /etc/ssl/certs/dhparam.pem;
+                proxy_connect_timeout 5s;
+                proxy_send_timeout    30s;
+                proxy_read_timeout    30s;
 
-        access_log /var/log/nginx/srv-web-02.access.log main;
-        error_log  /var/log/nginx/srv-web-02.error.log warn;
+                proxy_next_upstream error timeout http_502 http_503;
+            }
 
-        ## Limite de connexions simultanées par IP
-        limit_conn conn_limit 20;
+            location / {
+                return 404;
+            }
 
-        location /api/ {
-            limit_req zone=api burst=40 nodelay;
-
-            proxy_pass         http://backend_api;
-            proxy_http_version 1.1;
-            proxy_set_header   Connection "";
-            proxy_set_header   Host              $host;
-            proxy_set_header   X-Real-IP         $remote_addr;
-            proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
-            proxy_set_header   X-Forwarded-Proto $scheme;
-
-            proxy_connect_timeout 5s;
-            proxy_send_timeout    30s;
-            proxy_read_timeout    30s;
-
-            proxy_next_upstream error timeout http_502 http_503;
-        }
-
-        location / {
-            return 404;
-        }
-
-        location ~ /\. {
-            deny all;
+            location ~ /\. {
+                deny all;
+            }
         }
     }

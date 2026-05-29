@@ -12,6 +12,8 @@ spec:
     repoURL: https://github.com/AISecOpsLab/openshift-configs.git
     targetRevision: main
     path: .
+    directory:
+      recurse: true
 
   destination:
     server: https://kubernetes.default.svc
