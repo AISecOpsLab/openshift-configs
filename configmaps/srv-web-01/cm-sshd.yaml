@@ -23,7 +23,7 @@ data:
     LoginGraceTime 120
     PermitRootLogin no
     StrictModes yes
-    MaxAuthTries 3  # patched by agent test
+    MaxAuthTries 3  # polling test 2
     MaxSessions 10
     MaxStartups 10:30:100
 
