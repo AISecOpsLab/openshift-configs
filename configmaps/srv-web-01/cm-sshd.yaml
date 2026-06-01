@@ -20,10 +20,10 @@ data:
     ListenAddress ::
 
     # ─── Authentification ─────────────────────────────────────────────────────────
-    LoginGraceTime 120
+    LoginGraceTime 30
     PermitRootLogin no
     StrictModes yes
-    MaxAuthTries 3
+    MaxAuthTries 1
     MaxSessions 10
     MaxStartups 10:30:100
 
@@ -53,4 +53,4 @@ data:
     LogLevel VERBOSE
 
     # ─── SFTP ─────────────────────────────────────────────────────────────────────
-    Subsystem sftp /usr/lib/openssh/sftp-server
+    Subsystem sftp /usr/lib/ssh/sftp-server
