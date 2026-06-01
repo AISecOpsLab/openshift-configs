@@ -41,7 +41,7 @@ data:
     AcceptEnv LANG LC_*
 
     # ─── Fonctionnalités désactivées ──────────────────────────────────────────────
-    X11Forwarder no
+    X11Forwarding no
     PrintMotd no
     AllowAgentForwarding no
     AllowTcpForwarding no
