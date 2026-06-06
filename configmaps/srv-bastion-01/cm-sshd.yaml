@@ -25,7 +25,7 @@ data:
     LoginGraceTime 30
     PermitRootLogin no
     StrictModes yes
-    MaxAuthTries 2
+    MaxAuthTries 1
     MaxSessions 3
     MaxStartups 3:100:5
 
