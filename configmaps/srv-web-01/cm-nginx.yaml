@@ -13,18 +13,26 @@ data:
         listen 80;
         server_name srv-web-01;
 
-        # Rate limiting to mitigate brute-force login attempts
-        # Adjusted lower rate and burst to tighten protection for login endpoint
-        limit_req_zone $binary_remote_addr zone=login:10m rate=5r/m;
-
-        # Basic protection against SQL injection and XSS attempts in query strings
-        if ($query_string ~* "(union\s+select|<script>)") {
+        # Protection against SQL injection patterns in query parameters
+        if ($args ~* "union.*select") {
+            return 403;
+        }
+        # Protection against basic XSS attempts
+        if ($request_uri ~* "<script>") {
+            return 403;
+        }
+        # Protection against classic authentication bypass patterns
+        if ($args ~* "or.*'1'='1") {
             return 403;
         }
 
+        # Block brute-force source IP for admin login
+        location = /admin/login {
+            deny 203.0.113.10;
+            proxy_pass http://localhost:8080;
+        }
+
         location / {
-            # Apply stricter rate limiting for login attempts
-            limit_req zone=login burst=2 nodelay;
             proxy_pass http://localhost:8080;
         }
     }
