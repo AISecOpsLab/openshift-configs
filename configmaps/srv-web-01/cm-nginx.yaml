@@ -9,14 +9,11 @@ metadata:
     managed-by: aisecops-agent
 data:
   nginx.conf: |
-    # Added general request rate limiting to mitigate HTTP scanning attempts
-    limit_req_zone $binary_remote_addr zone=general:10m rate=30r/m;
-    
     server {
         listen 80;
         server_name srv-web-01;
 
-        # Existing rate limiting for login attempts
+        # Rate limiting to mitigate brute-force login attempts
         limit_req_zone $binary_remote_addr zone=login:10m rate=10r/m;
 
         # Enhanced protection against SQL injection, XSS, and common injection patterns in query strings
@@ -24,9 +21,13 @@ data:
             return 403;
         }
 
+        # Block suspicious IP for login endpoint
+        location = /admin/login {
+            deny 203.0.113.10;
+            proxy_pass http://localhost:8080;
+        }
+
         location / {
-            # Apply general request limiting
-            limit_req zone=general burst=10 nodelay;
             limit_req zone=login burst=5 nodelay;
             proxy_pass http://localhost:8080;
         }
