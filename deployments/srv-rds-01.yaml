@@ -1,0 +1,57 @@
+# NOTE : srv-rds-01 est un hôte Windows Server 2022 dans la CMDB.
+# kind (Linux) ne planifie pas de conteneurs Windows : ce Deployment utilise
+# une image Linux comme simulacre, qui se contente de monter les ConfigMaps
+# (rdp-policy.json, winrm.conf) — la source de vérité que l'agent peut corriger.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: srv-rds-01
+  namespace: aisecops
+  labels:
+    app: srv-rds-01
+    role: jump_host
+    os: windows
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: srv-rds-01
+  template:
+    metadata:
+      labels:
+        app: srv-rds-01
+    spec:
+      containers:
+      - name: windows-jump-sim
+        image: ubuntu:24.04
+        command: ["sleep", "infinity"]
+        volumeMounts:
+        - name: rdp-config
+          mountPath: /etc/aisecops/rdp-policy.json
+          subPath: rdp-policy.json
+        - name: winrm-config
+          mountPath: /etc/aisecops/winrm.conf
+          subPath: winrm.conf
+      volumes:
+      - name: rdp-config
+        configMap:
+          name: cm-srv-rds-01-rdp
+      - name: winrm-config
+        configMap:
+          name: cm-srv-rds-01-winrm
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: srv-rds-01
+  namespace: aisecops
+spec:
+  selector:
+    app: srv-rds-01
+  ports:
+  - name: rdp
+    port: 3389
+    targetPort: 3389
+  - name: winrm-https
+    port: 5986
+    targetPort: 5986

@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-srv-monitor-01-sshd
+  namespace: aisecops
+  labels:
+    app: srv-monitor-01
+    service: sshd
+    managed-by: aisecops-agent
+data:
+  sshd_config: |
+    # sshd_config — srv-monitor-01
+    # Rocky Linux 9.3 (Blue Onyx)
+    # CMDB : cmdb/srv-monitor-01.md | Service : prometheus-grafana
+
+    # ─── Réseau ───────────────────────────────────────────────────────────────────
+    Port 22
+    AddressFamily any
+    ListenAddress 10.0.5.10
+
+    # ─── Authentification ─────────────────────────────────────────────────────────
+    LoginGraceTime 120
+    PermitRootLogin no
+    StrictModes yes
+    MaxAuthTries 6
+    MaxSessions 10
+    MaxStartups 10:30:100
+
+    PubkeyAuthentication yes
+    AuthorizedKeysFile .ssh/authorized_keys
+
+    PasswordAuthentication no
+    PermitEmptyPasswords no
+    KbdInteractiveAuthentication no
+
+    # ─── PAM / environnement ──────────────────────────────────────────────────────
+    UsePAM yes
+    AcceptEnv LANG LC_*
+
+    # ─── Fonctionnalités désactivées ──────────────────────────────────────────────
+    X11Forwarding no
+    PrintMotd no
+    AllowAgentForwarding no
+    AllowTcpForwarding no
+    GatewayPorts no
+    PermitTunnel no
+
+    # ─── Journalisation ───────────────────────────────────────────────────────────
+    SyslogFacility AUTHPRIV
+    LogLevel VERBOSE
+
+    # ─── SFTP ─────────────────────────────────────────────────────────────────────
+    Subsystem sftp /usr/libexec/openssh/sftp-server

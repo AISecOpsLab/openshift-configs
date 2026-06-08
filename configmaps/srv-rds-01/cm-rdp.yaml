@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-srv-rds-01-rdp
+  namespace: aisecops
+  labels:
+    app: srv-rds-01
+    service: rdp
+    managed-by: aisecops-agent
+data:
+  rdp-policy.json: |
+    {
+      "_comment": "Politique RDP — srv-rds-01 (Windows Server 2022). CMDB : cmdb/srv-rds-01.md",
+      "listener": {
+        "port": 3389,
+        "bindAddress": "10.0.5.5"
+      },
+      "security": {
+        "_comment": "NLA obligatoire, TLS uniquement, pas de RDP 'classic'",
+        "userAuthentication": "NLA-required",
+        "securityLayer": "TLS",
+        "minEncryptionLevel": "High"
+      },
+      "access": {
+        "allowedGroups": ["AISECOPS\\Domain Admins", "AISECOPS\\RDS-Admins"],
+        "allowedSources": ["admins-firewall-list"],
+        "denyTSConnections": false
+      },
+      "session": {
+        "idleTimeoutMinutes": 15,
+        "disconnectedTimeoutMinutes": 5,
+        "clipboardRedirection": false,
+        "driveRedirection": false
+      }
+    }

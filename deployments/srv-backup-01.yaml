@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: srv-backup-01
+  namespace: aisecops
+  labels:
+    app: srv-backup-01
+    role: backup
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: srv-backup-01
+  template:
+    metadata:
+      labels:
+        app: srv-backup-01
+    spec:
+      containers:
+      - name: backup
+        image: ubuntu:24.04
+        command: ["sleep", "infinity"]
+        volumeMounts:
+        - name: sshd-config
+          mountPath: /etc/ssh/sshd_config
+          subPath: sshd_config
+      volumes:
+      - name: sshd-config
+        configMap:
+          name: cm-srv-backup-01-sshd
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: srv-backup-01
+  namespace: aisecops
+spec:
+  selector:
+    app: srv-backup-01
+  ports:
+  - name: ssh
+    port: 22
+    targetPort: 22

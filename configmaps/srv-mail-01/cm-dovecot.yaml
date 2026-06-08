@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-srv-mail-01-dovecot
+  namespace: aisecops
+  labels:
+    app: srv-mail-01
+    service: dovecot
+    managed-by: aisecops-agent
+data:
+  dovecot.conf: |
+    # dovecot.conf — srv-mail-01
+    # Rôle : IMAP/SASL (Dovecot)
+    # CMDB : cmdb/srv-mail-01.md
+
+    protocols = imap
+
+    # IMAP en clair interdit : STARTTLS/SSL obligatoire
+    ssl = required
+    ssl_cert = </etc/dovecot/certs/mail.pem
+    ssl_key = </etc/dovecot/certs/mail.key
+    ssl_min_protocol = TLSv1.2
+
+    disable_plaintext_auth = yes
+    auth_mechanisms = plain login
+
+    # Écoute IMAPS (993) et IMAP+STARTTLS (143)
+    service imap-login {
+      inet_listener imap {
+        port = 143
+      }
+      inet_listener imaps {
+        port = 993
+        ssl = yes
+      }
+    }
+
+    # Fournit l'auth SASL à Postfix (socket privé)
+    service auth {
+      unix_listener /var/spool/postfix/private/auth {
+        mode = 0660
+        user = postfix
+        group = postfix
+      }
+    }
+
+    mail_location = maildir:~/Maildir

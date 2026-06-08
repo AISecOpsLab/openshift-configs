@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-srv-mail-01-postfix
+  namespace: aisecops
+  labels:
+    app: srv-mail-01
+    service: postfix
+    managed-by: aisecops-agent
+data:
+  main.cf: |
+    # main.cf — srv-mail-01
+    # Rôle : MTA Postfix (relais sortant + réception MX)
+    # CMDB : cmdb/srv-mail-01.md
+
+    myhostname = srv-mail-01.aisecops.lab
+    mydomain = aisecops.lab
+    myorigin = $mydomain
+    inet_interfaces = all
+    inet_protocols = ipv4
+
+    # ─── Anti open-relay ───
+    # On ne relaie que pour le réseau interne et les utilisateurs authentifiés
+    mynetworks = 127.0.0.0/8, 10.0.0.0/16
+    smtpd_relay_restrictions =
+        permit_mynetworks,
+        permit_sasl_authenticated,
+        reject_unauth_destination
+
+    # ─── TLS obligatoire sur la soumission ───
+    smtpd_tls_security_level = may
+    smtpd_tls_cert_file = /etc/postfix/certs/mail.pem
+    smtpd_tls_key_file = /etc/postfix/certs/mail.key
+    smtpd_tls_protocols = >=TLSv1.2
+
+    # ─── SASL (soumission authentifiée) ───
+    smtpd_sasl_auth_enable = yes
+    smtpd_sasl_type = dovecot
+    smtpd_sasl_path = private/auth
+
+    # ─── Durcissement ───
+    disable_vrfy_command = yes
+    smtpd_helo_required = yes
+    message_size_limit = 26214400

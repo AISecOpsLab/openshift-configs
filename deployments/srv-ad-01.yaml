@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: srv-ad-01
+  namespace: aisecops
+  labels:
+    app: srv-ad-01
+    role: domain_controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: srv-ad-01
+  template:
+    metadata:
+      labels:
+        app: srv-ad-01
+    spec:
+      containers:
+      - name: samba-ad
+        image: debian:12
+        command: ["sleep", "infinity"]
+        volumeMounts:
+        - name: samba-config
+          mountPath: /etc/samba/smb.conf
+          subPath: smb.conf
+        - name: sshd-config
+          mountPath: /etc/ssh/sshd_config
+          subPath: sshd_config
+      volumes:
+      - name: samba-config
+        configMap:
+          name: cm-srv-ad-01-samba
+      - name: sshd-config
+        configMap:
+          name: cm-srv-ad-01-sshd
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: srv-ad-01
+  namespace: aisecops
+spec:
+  selector:
+    app: srv-ad-01
+  ports:
+  - name: ldap
+    port: 389
+    targetPort: 389
+  - name: ldaps
+    port: 636
+    targetPort: 636
+  - name: kerberos
+    port: 88
+    targetPort: 88
+  - name: smb
+    port: 445
+    targetPort: 445

@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-srv-files-01-samba
+  namespace: aisecops
+  labels:
+    app: srv-files-01
+    service: samba
+    managed-by: aisecops-agent
+data:
+  smb.conf: |
+    # smb.conf — srv-files-01
+    # Rôle : serveur de fichiers Samba (membre du domaine aisecops.lab)
+    # CMDB : cmdb/srv-files-01.md
+
+    [global]
+        netbios name = SRV-FILES-01
+        workgroup = AISECOPS
+        security = ADS
+        realm = AISECOPS.LAB
+
+        # ─── Durcissement ───
+        # SMBv1 interdit
+        server min protocol = SMB2_10
+        client min protocol = SMB2_10
+        # Signature et chiffrement exigés
+        server signing = mandatory
+        smb encrypt = required
+        # Pas d'accès invité
+        restrict anonymous = 2
+        map to guest = Never
+        # Partages administratifs implicites désactivés
+        load printers = no
+        disable spoolss = yes
+
+        log level = 1
+        log file = /var/log/samba/log.%m
+
+    [rh]
+        path = /srv/partages/rh
+        read only = No
+        valid users = @"AISECOPS\rh"
+        # Accès réservé au réseau interne
+        hosts allow = 10.0.0.0/16
+        hosts deny = 0.0.0.0/0
+
+    [compta]
+        path = /srv/partages/compta
+        read only = No
+        valid users = @"AISECOPS\compta"
+        hosts allow = 10.0.0.0/16
+        hosts deny = 0.0.0.0/0

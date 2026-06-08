@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-srv-monitor-01-grafana
+  namespace: aisecops
+  labels:
+    app: srv-monitor-01
+    service: grafana
+    managed-by: aisecops-agent
+data:
+  grafana.ini: |
+    ; grafana.ini — srv-monitor-01
+    ; Rôle : visualisation des métriques (Grafana)
+    ; CMDB : cmdb/srv-monitor-01.md
+
+    [server]
+    http_addr = 10.0.5.10
+    http_port = 3000
+    ; Domaine interne — pas d'exposition publique
+    domain = srv-monitor-01.aisecops.lab
+    enforce_domain = true
+
+    [security]
+    ; Mot de passe admin via variable d'environnement (jamais en clair ici)
+    admin_user = admin
+    disable_initial_admin_creation = false
+    cookie_secure = true
+    cookie_samesite = strict
+    strict_transport_security = true
+
+    [auth.anonymous]
+    ; Pas d'accès anonyme
+    enabled = false
+
+    [users]
+    allow_sign_up = false

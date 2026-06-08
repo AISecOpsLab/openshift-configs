@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-srv-dns-01-named
+  namespace: aisecops
+  labels:
+    app: srv-dns-01
+    service: bind9
+    managed-by: aisecops-agent
+data:
+  named.conf.options: |
+    // named.conf.options — srv-dns-01
+    // Rôle : DNS interne (BIND9), zone aisecops.lab
+    // CMDB : cmdb/srv-dns-01.md
+
+    acl "interne" {
+        10.0.0.0/16;
+        localhost;
+    };
+
+    options {
+        directory "/var/cache/bind";
+
+        // Récursion réservée au réseau interne (anti-amplification DNS)
+        recursion yes;
+        allow-recursion { interne; };
+        allow-query { interne; };
+
+        // Transferts de zone interdits par défaut
+        allow-transfer { none; };
+
+        // Forwarders externes
+        forwarders {
+            1.1.1.1;
+            9.9.9.9;
+        };
+        forward only;
+
+        // Masque la version de BIND
+        version "non disponible";
+
+        dnssec-validation auto;
+        listen-on { 10.0.4.20; };
+        listen-on-v6 { none; };
+    };

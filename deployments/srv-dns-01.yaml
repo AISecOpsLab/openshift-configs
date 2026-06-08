@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: srv-dns-01
+  namespace: aisecops
+  labels:
+    app: srv-dns-01
+    role: dns_server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: srv-dns-01
+  template:
+    metadata:
+      labels:
+        app: srv-dns-01
+    spec:
+      containers:
+      - name: bind9
+        image: ubuntu:24.04
+        command: ["sleep", "infinity"]
+        volumeMounts:
+        - name: named-config
+          mountPath: /etc/bind/named.conf.options
+          subPath: named.conf.options
+        - name: sshd-config
+          mountPath: /etc/ssh/sshd_config
+          subPath: sshd_config
+      volumes:
+      - name: named-config
+        configMap:
+          name: cm-srv-dns-01-named
+      - name: sshd-config
+        configMap:
+          name: cm-srv-dns-01-sshd
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: srv-dns-01
+  namespace: aisecops
+spec:
+  selector:
+    app: srv-dns-01
+  ports:
+  - name: dns-tcp
+    port: 53
+    targetPort: 53
+    protocol: TCP
+  - name: dns-udp
+    port: 53
+    targetPort: 53
+    protocol: UDP

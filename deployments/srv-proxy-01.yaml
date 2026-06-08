@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: srv-proxy-01
+  namespace: aisecops
+  labels:
+    app: srv-proxy-01
+    role: load_balancer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: srv-proxy-01
+  template:
+    metadata:
+      labels:
+        app: srv-proxy-01
+    spec:
+      containers:
+      - name: haproxy
+        image: haproxy:2.8
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        volumeMounts:
+        - name: haproxy-config
+          mountPath: /usr/local/etc/haproxy/haproxy.cfg
+          subPath: haproxy.cfg
+      volumes:
+      - name: haproxy-config
+        configMap:
+          name: cm-srv-proxy-01-haproxy
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: srv-proxy-01
+  namespace: aisecops
+spec:
+  selector:
+    app: srv-proxy-01
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  - name: https
+    port: 443
+    targetPort: 443

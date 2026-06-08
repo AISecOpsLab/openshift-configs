@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-srv-proxy-01-sshd
+  namespace: aisecops
+  labels:
+    app: srv-proxy-01
+    service: sshd
+    managed-by: aisecops-agent
+data:
+  sshd_config: |
+    # sshd_config — srv-proxy-01
+    # Ubuntu 24.04 LTS (Noble Numbat)
+    # CMDB : cmdb/srv-proxy-01.md | Service : haproxy-edge
+
+    # ─── Réseau ───────────────────────────────────────────────────────────────────
+    Port 22
+    AddressFamily any
+    ListenAddress 10.0.1.5
+
+    # ─── Authentification ─────────────────────────────────────────────────────────
+    LoginGraceTime 120
+    PermitRootLogin no
+    StrictModes yes
+    MaxAuthTries 6
+    MaxSessions 10
+    MaxStartups 10:30:100
+
+    PubkeyAuthentication yes
+    AuthorizedKeysFile .ssh/authorized_keys
+
+    PasswordAuthentication no
+    PermitEmptyPasswords no
+    KbdInteractiveAuthentication no
+
+    # ─── PAM / environnement ──────────────────────────────────────────────────────
+    UsePAM yes
+    AcceptEnv LANG LC_*
+
+    # ─── Fonctionnalités désactivées ──────────────────────────────────────────────
+    X11Forwarding no
+    PrintMotd no
+    AllowAgentForwarding no
+    AllowTcpForwarding no
+    GatewayPorts no
+    PermitTunnel no
+
+    # ─── Journalisation ───────────────────────────────────────────────────────────
+    SyslogFacility AUTH
+    LogLevel VERBOSE
+
+    # ─── SFTP ─────────────────────────────────────────────────────────────────────
+    Subsystem sftp /usr/lib/openssh/sftp-server

@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-srv-monitor-01-prometheus
+  namespace: aisecops
+  labels:
+    app: srv-monitor-01
+    service: prometheus
+    managed-by: aisecops-agent
+data:
+  prometheus.yml: |
+    # prometheus.yml — srv-monitor-01
+    # Rôle : collecte des métriques de l'infrastructure
+    # CMDB : cmdb/srv-monitor-01.md
+
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+
+    scrape_configs:
+      - job_name: prometheus
+        static_configs:
+          - targets: ["localhost:9090"]
+
+      - job_name: node
+        static_configs:
+          - targets:
+              - "10.0.1.5:9100"   # srv-proxy-01
+              - "10.0.1.15:9100"  # srv-web-01
+              - "10.0.1.16:9100"  # srv-web-02
+              - "10.0.2.10:9100"  # srv-app-01
+              - "10.0.2.11:9100"  # srv-app-02
+              - "10.0.3.20:9100"  # srv-db-01
+              - "10.0.4.10:9100"  # srv-ad-01
+              - "10.0.4.20:9100"  # srv-dns-01
+              - "10.0.4.30:9100"  # srv-mail-01
+              - "10.0.4.40:9100"  # srv-files-01
