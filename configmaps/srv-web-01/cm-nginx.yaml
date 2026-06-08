@@ -9,10 +9,14 @@ metadata:
     managed-by: aisecops-agent
 data:
   nginx.conf: |
+    limit_req_zone $binary_remote_addr zone=scan_limit:10m rate=5r/s;
+    
     server {
         listen 80;
         server_name srv-web-01;
-        deny 198.51.100.20;
+
+        # Protect against scanning
+        limit_req zone=scan_limit burst=10 nodelay;
 
         location / {
             proxy_pass http://localhost:8080;
