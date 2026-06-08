@@ -9,17 +9,18 @@ metadata:
     managed-by: aisecops-agent
 data:
   nginx.conf: |
-    # Rate limiting to mitigate HTTP scan attacks
-    limit_req_zone $binary_remote_addr zone=scan_limit:10m rate=5r/s;
-    
     server {
         listen 80;
         server_name srv-web-01;
 
-        # Apply rate limiting per IP
-        limit_req zone=scan_limit burst=10 nodelay;
-
         location / {
+            proxy_pass http://localhost:8080;
+        }
+
+        # Rate limiting to mitigate brute-force login attempts on /admin/login
+        limit_req_zone $binary_remote_addr zone=login_limit:10m rate=5r/s;
+        location ^~ /admin/login {
+            limit_req zone=login_limit burst=10 nodelay;
             proxy_pass http://localhost:8080;
         }
     }
