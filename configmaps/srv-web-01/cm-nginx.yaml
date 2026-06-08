@@ -13,7 +13,12 @@ data:
         listen 80;
         server_name srv-web-01;
 
+        # Mitigation: rate limiting to protect against DDoS attacks
+        limit_req_zone $binary_remote_addr zone=ddos:10m rate=5r/s;
+
         location / {
+            # Apply rate limit for incoming requests
+            limit_req zone=ddos burst=10 nodelay;
             proxy_pass http://localhost:8080;
         }
     }
