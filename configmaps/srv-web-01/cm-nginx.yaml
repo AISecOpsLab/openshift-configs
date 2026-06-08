@@ -15,15 +15,13 @@ data:
 
         # Rate limiting to mitigate brute-force login attempts
         limit_req_zone $binary_remote_addr zone=login:10m rate=10r/m;
-        limit_req_zone $binary_remote_addr zone=adminlogin:10m rate=5r/m;
 
-        location = /admin/login {
-            limit_req zone=adminlogin burst=2 nodelay;
-            proxy_pass http://localhost:8080;
-        }
+        # Rate limiting to mitigate scanning activity
+        limit_req_zone $binary_remote_addr zone=scan:10m rate=5r/s;
 
         location / {
             limit_req zone=login burst=5 nodelay;
+            limit_req zone=scan burst=20 nodelay;
             proxy_pass http://localhost:8080;
         }
     }
