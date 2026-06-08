@@ -17,7 +17,6 @@ data:
     # -----------------------------
     # /etc/apache2/ports.conf
     # -----------------------------
-    # Écoute uniquement sur l'interface interne
     Listen 10.0.2.10:8080
 
     # -----------------------------
@@ -27,12 +26,10 @@ data:
     ServerSignature Off
     TraceEnable Off
 
-    # Désactiver les méthodes HTTP non nécessaires
     <LimitExcept GET POST PUT DELETE OPTIONS>
         Require all denied
     </LimitExcept>
 
-    # Headers de sécurité
     Header always set X-Frame-Options "SAMEORIGIN"
     Header always set X-Content-Type-Options "nosniff"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
@@ -46,29 +43,24 @@ data:
 
         DocumentRoot /var/www/api
 
-        ## Journalisation
         ErrorLog  /var/log/apache2/srv-app-01.error.log
         CustomLog /var/log/apache2/srv-app-01.access.log combined
 
-        ## Restriction d'accès : web tier uniquement
         <Directory /var/www/api>
             Options -Indexes -FollowSymLinks -MultiViews
             AllowOverride None
             Require ip 10.0.1.0/24
         </Directory>
 
-        ## Endpoint de santé (healthcheck depuis le load balancer)
         <Location /health>
             Require ip 10.0.1.0/24
             SetHandler server-status
         </Location>
 
-        ## Proxy vers l'application (ex: Gunicorn/uWSGI sur port 9000)
         ProxyPreserveHost On
         ProxyPass        /api/ http://127.0.0.1:9000/api/
         ProxyPassReverse /api/ http://127.0.0.1:9000/api/
 
-        ## Timeouts
         ProxyTimeout 30
         Timeout 30
 

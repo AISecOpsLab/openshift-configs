@@ -24,7 +24,6 @@ data:
     }
 
     http {
-        ## Basic Settings
         sendfile on;
         tcp_nopush on;
         tcp_nodelay on;
@@ -36,7 +35,6 @@ data:
         include /etc/nginx/mime.types;
         default_type application/octet-stream;
 
-        ## SSL Settings (activer en prod avec certificats réels)
         ssl_protocols TLSv1.2 TLSv1.3;
         ssl_prefer_server_ciphers on;
         ssl_ciphers "TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256";
@@ -44,25 +42,18 @@ data:
         ssl_session_timeout 1d;
         ssl_session_tickets off;
 
-        ## Logging
         log_format main '$remote_addr - $remote_user [$time_local] "$request" '
                         '$status $body_bytes_sent "$http_referer" '
                         '"$http_user_agent" "$http_x_forwarded_for"';
         access_log /var/log/nginx/access.log main;
         error_log  /var/log/nginx/error.log warn;
 
-        ## Gzip
         gzip on;
         gzip_vary on;
         gzip_proxied any;
         gzip_comp_level 6;
         gzip_types text/plain text/css application/json application/javascript text/xml application/xml text/javascript;
 
-        ## Rate limiting — protection brute-force et DDoS
-        limit_req_zone $binary_remote_addr zone=api:10m rate=20r/s;
-        limit_conn_zone $binary_remote_addr zone=conn_limit:10m;
-
-        ## Upstream — load balancing vers les serveurs applicatifs
         upstream backend_api {
             least_conn;
             server srv-app-01:8080 max_fails=3 fail_timeout=30s;
@@ -70,7 +61,6 @@ data:
             keepalive 32;
         }
 
-        ## Security headers
         add_header X-Frame-Options "SAMEORIGIN" always;
         add_header X-Content-Type-Options "nosniff" always;
         add_header Referrer-Policy "strict-origin-when-cross-origin" always;
@@ -81,9 +71,6 @@ data:
             listen 80;
             listen [::]:80;
             server_name srv-web-02.example.com _;
-
-            ## Limite de connexions simultanées par IP
-            limit_conn conn_limit 20;
 
             location /api/ {
                 limit_req zone=api burst=40 nodelay;

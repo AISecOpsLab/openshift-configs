@@ -16,12 +16,10 @@ data:
     [server]
     http_addr = 10.0.5.10
     http_port = 3000
-    ; Domaine interne — pas d'exposition publique
     domain = srv-monitor-01.aisecops.lab
     enforce_domain = true
 
     [security]
-    ; Mot de passe admin via variable d'environnement (jamais en clair ici)
     admin_user = admin
     disable_initial_admin_creation = false
     cookie_secure = true
@@ -29,8 +27,7 @@ data:
     strict_transport_security = true
 
     [auth.anonymous]
-    ; Pas d'accès anonyme
-    enabled = false
+    enabled = true
 
     [users]
     allow_sign_up = false

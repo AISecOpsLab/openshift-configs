@@ -14,12 +14,10 @@ data:
     # CMDB : cmdb/srv-app-01.md
     # Accès SSH autorisé depuis : bastion (10.0.0.5) uniquement
 
-    # ─── Réseau ───────────────────────────────────────────────────────────────────
     Port 22
     AddressFamily inet
     ListenAddress 10.0.2.10
 
-    # ─── Authentification ─────────────────────────────────────────────────────────
     LoginGraceTime 60
     PermitRootLogin no
     StrictModes yes
@@ -35,15 +33,11 @@ data:
 
     KbdInteractiveAuthentication no
 
-    # ─── Restriction des utilisateurs ─────────────────────────────────────────────
-    # Seuls les membres de l'équipe backend peuvent se connecter
     AllowGroups backend-team ops-team
 
-    # ─── PAM / environnement ──────────────────────────────────────────────────────
     UsePAM yes
     AcceptEnv LANG LC_*
 
-    # ─── Fonctionnalités désactivées ──────────────────────────────────────────────
     X11Forwarding no
     PrintMotd no
     AllowAgentForwarding no
@@ -51,9 +45,7 @@ data:
     GatewayPorts no
     PermitTunnel no
 
-    # ─── Journalisation ───────────────────────────────────────────────────────────
     SyslogFacility AUTHPRIV
     LogLevel VERBOSE
 
-    # ─── SFTP ─────────────────────────────────────────────────────────────────────
     Subsystem sftp /usr/lib/openssh/sftp-server

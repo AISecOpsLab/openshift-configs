@@ -19,17 +19,12 @@ data:
         security = ADS
         realm = AISECOPS.LAB
 
-        # ─── Durcissement ───
-        # SMBv1 interdit
         server min protocol = SMB2_10
         client min protocol = SMB2_10
-        # Signature et chiffrement exigés
         server signing = mandatory
         smb encrypt = required
-        # Pas d'accès invité
         restrict anonymous = 2
         map to guest = Never
-        # Partages administratifs implicites désactivés
         load printers = no
         disable spoolss = yes
 
@@ -40,7 +35,6 @@ data:
         path = /srv/partages/rh
         read only = No
         valid users = @"AISECOPS\rh"
-        # Accès réservé au réseau interne
         hosts allow = 10.0.0.0/16
         hosts deny = 0.0.0.0/0
 

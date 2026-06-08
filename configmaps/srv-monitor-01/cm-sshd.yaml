@@ -13,12 +13,10 @@ data:
     # Rocky Linux 9.3 (Blue Onyx)
     # CMDB : cmdb/srv-monitor-01.md | Service : prometheus-grafana
 
-    # ─── Réseau ───────────────────────────────────────────────────────────────────
     Port 22
     AddressFamily any
     ListenAddress 10.0.5.10
 
-    # ─── Authentification ─────────────────────────────────────────────────────────
     LoginGraceTime 120
     PermitRootLogin no
     StrictModes yes
@@ -33,11 +31,9 @@ data:
     PermitEmptyPasswords no
     KbdInteractiveAuthentication no
 
-    # ─── PAM / environnement ──────────────────────────────────────────────────────
     UsePAM yes
     AcceptEnv LANG LC_*
 
-    # ─── Fonctionnalités désactivées ──────────────────────────────────────────────
     X11Forwarding no
     PrintMotd no
     AllowAgentForwarding no
@@ -45,9 +41,7 @@ data:
     GatewayPorts no
     PermitTunnel no
 
-    # ─── Journalisation ───────────────────────────────────────────────────────────
     SyslogFacility AUTHPRIV
     LogLevel VERBOSE
 
-    # ─── SFTP ─────────────────────────────────────────────────────────────────────
     Subsystem sftp /usr/libexec/openssh/sftp-server

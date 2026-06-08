@@ -13,13 +13,11 @@ data:
     # Ubuntu 24.04 LTS | Rôle : reverse proxy nginx
     # CMDB : cmdb/srv-web-02.md
 
-    # ─── Réseau ───────────────────────────────────────────────────────────────────
     Port 22
     AddressFamily any
     ListenAddress 0.0.0.0
     ListenAddress ::
 
-    # ─── Authentification ─────────────────────────────────────────────────────────
     LoginGraceTime 120
     PermitRootLogin no
     StrictModes yes
@@ -35,11 +33,9 @@ data:
 
     KbdInteractiveAuthentication no
 
-    # ─── PAM / environnement ──────────────────────────────────────────────────────
     UsePAM yes
     AcceptEnv LANG LC_*
 
-    # ─── Fonctionnalités désactivées ──────────────────────────────────────────────
     X11Forwarding no
     PrintMotd no
     AllowAgentForwarding no
@@ -47,9 +43,7 @@ data:
     GatewayPorts no
     PermitTunnel no
 
-    # ─── Journalisation ───────────────────────────────────────────────────────────
     SyslogFacility AUTH
     LogLevel INFO
 
-    # ─── SFTP ─────────────────────────────────────────────────────────────────────
     Subsystem sftp /usr/lib/openssh/sftp-server

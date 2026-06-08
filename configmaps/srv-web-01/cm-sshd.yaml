@@ -13,13 +13,11 @@ data:
     # Ubuntu 24.04 LTS (Noble Numbat)
     # CMDB : cmdb/srv-web-01.md | Service : nginx-public-front
 
-    # ─── Réseau ───────────────────────────────────────────────────────────────────
     Port 22
     AddressFamily any
     ListenAddress 0.0.0.0
     ListenAddress ::
 
-    # ─── Authentification ─────────────────────────────────────────────────────────
     LoginGraceTime 120
     PermitRootLogin no
     StrictModes yes
@@ -33,14 +31,11 @@ data:
     PasswordAuthentication no
     PermitEmptyPasswords no
 
-    # Désactivé sur Ubuntu 24.04 (remplacé par PAM)
     KbdInteractiveAuthentication no
 
-    # ─── PAM / environnement ──────────────────────────────────────────────────────
     UsePAM yes
     AcceptEnv LANG LC_*
 
-    # ─── Fonctionnalités désactivées ──────────────────────────────────────────────
     X11Forwarding no
     PrintMotd no
     AllowAgentForwarding no
@@ -48,9 +43,7 @@ data:
     GatewayPorts no
     PermitTunnel no
 
-    # ─── Journalisation ───────────────────────────────────────────────────────────
     SyslogFacility AUTH
     LogLevel VERBOSE
 
-    # ─── SFTP ─────────────────────────────────────────────────────────────────────
     Subsystem sftp /usr/lib/openssh/sftp-server

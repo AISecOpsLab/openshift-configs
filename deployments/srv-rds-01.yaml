@@ -1,7 +1,3 @@
-# NOTE : srv-rds-01 est un hôte Windows Server 2022 dans la CMDB.
-# kind (Linux) ne planifie pas de conteneurs Windows : ce Deployment utilise
-# une image Linux comme simulacre, qui se contente de monter les ConfigMaps
-# (rdp-policy.json, winrm.conf) — la source de vérité que l'agent peut corriger.
 apiVersion: apps/v1
 kind: Deployment
 metadata:

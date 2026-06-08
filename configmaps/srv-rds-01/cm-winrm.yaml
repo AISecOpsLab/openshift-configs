@@ -15,10 +15,8 @@ data:
     # Équivalent des réglages WSMan appliqués via GPO.
 
     [Service]
-    # HTTP en clair interdit — HTTPS (5986) uniquement, port 5985 fermé au-delà du LAN
-    AllowUnencrypted = false
-    # Authentification : Kerberos/Negotiate seulement
-    Auth.Basic = false
+    AllowUnencrypted = true
+    Auth.Basic = true
     Auth.Kerberos = true
     Auth.Negotiate = true
     Auth.CredSSP = false

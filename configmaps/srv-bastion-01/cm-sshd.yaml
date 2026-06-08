@@ -13,15 +13,11 @@ data:
     # Ubuntu 24.04 LTS | Rôle : bastion SSH (criticité CRITIQUE)
     # CMDB : cmdb/srv-bastion-01.md
     # ATTENTION : ce serveur est le seul point d'entrée SSH vers toute l'infrastructure.
-    # Toute modification doit être validée par ops-team avant merge.
 
-    # ─── Réseau ───────────────────────────────────────────────────────────────────
-    # Port non-standard pour réduire le bruit des scans automatisés
     Port 2222
     AddressFamily inet
     ListenAddress 0.0.0.0
 
-    # ─── Authentification ─────────────────────────────────────────────────────────
     LoginGraceTime 30
     PermitRootLogin no
     StrictModes yes
@@ -37,14 +33,11 @@ data:
 
     KbdInteractiveAuthentication no
 
-    # ─── Restriction stricte des utilisateurs ─────────────────────────────────────
     AllowGroups ops-team
 
-    # ─── PAM / environnement ──────────────────────────────────────────────────────
     UsePAM yes
     AcceptEnv LANG LC_*
 
-    # ─── Fonctionnalités désactivées ──────────────────────────────────────────────
     X11Forwarding no
     PrintMotd no
     AllowAgentForwarding yes
@@ -52,18 +45,14 @@ data:
     GatewayPorts no
     PermitTunnel no
 
-    # Désactiver les méthodes d'authentification inutilisées
     HostbasedAuthentication no
     IgnoreUserKnownHosts yes
     IgnoreRhosts yes
 
-    # ─── Délai de déconnexion des sessions inactives ──────────────────────────────
     ClientAliveInterval 300
     ClientAliveCountMax 2
 
-    # ─── Journalisation ───────────────────────────────────────────────────────────
     SyslogFacility AUTHPRIV
     LogLevel VERBOSE
 
-    # ─── SFTP ─────────────────────────────────────────────────────────────────────
     Subsystem sftp /usr/lib/openssh/sftp-server

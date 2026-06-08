@@ -14,13 +14,10 @@ data:
     # CMDB : cmdb/srv-db-01.md
     # Accès SSH interne uniquement — aucune exposition publique
 
-    # ─── Réseau ───────────────────────────────────────────────────────────────────
     Port 22
     AddressFamily inet
-    # Écoute uniquement sur l'interface interne
     ListenAddress 10.0.3.20
 
-    # ─── Authentification ─────────────────────────────────────────────────────────
     LoginGraceTime 30
     PermitRootLogin no
     StrictModes yes
@@ -36,14 +33,11 @@ data:
 
     KbdInteractiveAuthentication no
 
-    # ─── Restriction stricte des utilisateurs ─────────────────────────────────────
     AllowGroups dba-team ops-team
 
-    # ─── PAM / environnement ──────────────────────────────────────────────────────
     UsePAM yes
     AcceptEnv LANG LC_*
 
-    # ─── Fonctionnalités désactivées ──────────────────────────────────────────────
     X11Forwarding no
     PrintMotd no
     AllowAgentForwarding no
@@ -51,13 +45,10 @@ data:
     GatewayPorts no
     PermitTunnel no
 
-    # ─── Délai de déconnexion des sessions inactives ──────────────────────────────
     ClientAliveInterval 180
     ClientAliveCountMax 2
 
-    # ─── Journalisation ───────────────────────────────────────────────────────────
     SyslogFacility AUTHPRIV
     LogLevel VERBOSE
 
-    # ─── SFTP ─────────────────────────────────────────────────────────────────────
     Subsystem sftp /usr/lib/openssh/sftp-server

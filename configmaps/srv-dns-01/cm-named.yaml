@@ -21,22 +21,18 @@ data:
     options {
         directory "/var/cache/bind";
 
-        // Récursion réservée au réseau interne (anti-amplification DNS)
         recursion yes;
         allow-recursion { interne; };
         allow-query { interne; };
 
-        // Transferts de zone interdits par défaut
         allow-transfer { none; };
 
-        // Forwarders externes
         forwarders {
             1.1.1.1;
             9.9.9.9;
         };
         forward only;
 
-        // Masque la version de BIND
         version "non disponible";
 
         dnssec-validation auto;

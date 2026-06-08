@@ -13,12 +13,10 @@ data:
     # Debian 12 (Bookworm)
     # CMDB : cmdb/srv-ad-01.md | Service : samba-ad-dc (domaine aisecops.lab)
 
-    # ─── Réseau ───────────────────────────────────────────────────────────────────
     Port 22
     AddressFamily any
     ListenAddress 10.0.4.10
 
-    # ─── Authentification ─────────────────────────────────────────────────────────
     LoginGraceTime 60
     PermitRootLogin no
     StrictModes yes
@@ -33,14 +31,11 @@ data:
     PermitEmptyPasswords no
     KbdInteractiveAuthentication no
 
-    # Annuaire critique : accès SSH réservé aux administrateurs identité
     AllowGroups identity-admins
 
-    # ─── PAM / environnement ──────────────────────────────────────────────────────
     UsePAM yes
     AcceptEnv LANG LC_*
 
-    # ─── Fonctionnalités désactivées ──────────────────────────────────────────────
     X11Forwarding no
     PrintMotd no
     AllowAgentForwarding no
@@ -48,9 +43,7 @@ data:
     GatewayPorts no
     PermitTunnel no
 
-    # ─── Journalisation ───────────────────────────────────────────────────────────
     SyslogFacility AUTH
     LogLevel VERBOSE
 
-    # ─── SFTP ─────────────────────────────────────────────────────────────────────
     Subsystem sftp /usr/lib/openssh/sftp-server

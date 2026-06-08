@@ -19,19 +19,13 @@ data:
         workgroup = AISECOPS
         server role = active directory domain controller
 
-        # ─── Durcissement ───
-        # SMBv1 interdit
         server min protocol = SMB2_10
         client min protocol = SMB2_10
-        # Signature obligatoire (anti-relais)
         server signing = mandatory
-        # LDAP en clair interdit — TLS obligatoire
         ldap server require strong auth = yes
-        # Pas de session invité
         restrict anonymous = 2
         map to guest = Never
 
-        # ─── DNS interne intégré ───
         dns forwarder = 10.0.4.20
 
         log level = 1
