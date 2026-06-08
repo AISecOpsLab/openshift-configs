@@ -15,15 +15,17 @@ data:
 
         # Rate limiting to mitigate brute-force login attempts
         limit_req_zone $binary_remote_addr zone=login:10m rate=10r/m;
-        limit_req_zone $binary_remote_addr zone=adminlogin:10m rate=5r/m;
+        # Rate limiting to mitigate HTTP scanning attempts
+        limit_req_zone $binary_remote_addr zone=scan:10m rate=30r/m;  # added for scan mitigation
 
-        location = /admin/login {
-            limit_req zone=adminlogin burst=2 nodelay;
-            proxy_pass http://localhost:8080;
+        # Basic protection against SQL injection and XSS attempts in query strings
+        if ($query_string ~* "(union\s+select|<script>)") {
+            return 403;
         }
 
         location / {
             limit_req zone=login burst=5 nodelay;
+            limit_req zone=scan burst=10 nodelay;  # added for scan mitigation
             proxy_pass http://localhost:8080;
         }
     }
