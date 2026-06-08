@@ -17,8 +17,12 @@ spec:
         app: srv-proxy-01
     spec:
       containers:
+      # Placeholder Linux (comme les autres serveurs cœur) : monte haproxy.cfg
+      # comme source de vérité éditable, sans exécuter réellement HAProxy
+      # (qui exigerait un certificat TLS). Cohérent avec srv-ad/dns/mail/files.
       - name: haproxy
-        image: haproxy:2.8
+        image: ubuntu:24.04
+        command: ["sleep", "infinity"]
         ports:
         - containerPort: 80
         - containerPort: 443
