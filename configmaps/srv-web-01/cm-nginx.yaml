@@ -13,20 +13,11 @@ data:
         listen 80;
         server_name srv-web-01;
 
-        # Protection against SQL injection patterns in query parameters
-        if ($args ~* "union.*select") {
-            return 403;
-        }
-        # Protection against basic XSS attempts
-        if ($request_uri ~* "<script>") {
-            return 403;
-        }
-        # Protection against classic authentication bypass patterns
-        if ($args ~* "or.*'1'='1") {
-            return 403;
-        }
-
         location / {
             proxy_pass http://localhost:8080;
         }
+
+        add_header X-Content-Type-Options nosniff;
+        add_header X-Frame-Options SAMEORIGIN;
+        add_header X-XSS-Protection "1; mode=block";
     }
