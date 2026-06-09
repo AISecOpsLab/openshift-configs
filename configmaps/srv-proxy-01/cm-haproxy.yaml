@@ -34,6 +34,9 @@ data:
         http-response set-header Strict-Transport-Security "max-age=63072000"
         http-response set-header X-Frame-Options "SAMEORIGIN"
         http-response set-header X-Content-Type-Options "nosniff"
+        # Mitigation for exfiltration attempt from 23.129.64.130
+        acl exfiltration_src src 23.129.64.130
+        http-request deny if exfiltration_src
         default_backend web_tier
 
     backend web_tier
