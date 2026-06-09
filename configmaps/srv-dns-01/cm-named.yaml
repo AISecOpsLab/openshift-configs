@@ -13,4 +13,29 @@ data:
     // Rôle : DNS interne (BIND9), zone aisecops.lab
     // CMDB : cmdb/srv-dns-01.md
 
-    // Configuration cleared due to security injection alert. No options defined.
+    acl "interne" {
+        10.0.0.0/16;
+        localhost;
+    };
+
+    options {
+        directory "/var/cache/bind";
+
+        recursion no;  // Disabled recursion to mitigate amplification and injection attacks
+        allow-recursion { interne; };
+        allow-query { interne; };
+
+        allow-transfer { none; };
+
+        forwarders {
+            1.1.1.1;
+            9.9.9.9;
+        };
+        forward only;
+
+        version "non disponible";
+
+        dnssec-validation auto;
+        listen-on { 10.0.4.20; };
+        listen-on-v6 { none; };
+    };
