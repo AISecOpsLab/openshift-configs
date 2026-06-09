@@ -9,12 +9,15 @@ metadata:
     managed-by: aisecops-agent
 data:
   nginx.conf: |
+    limit_req_zone $binary_remote_addr zone=one:10m rate=10r/s;
     server {
         listen 80;
         server_name srv-web-01;
 
+        # Mitigation: rate limiting for DDoS
+        limit_req zone=one burst=20 nodelay;
+
         location / {
-            limit_rate 500k;
             proxy_pass http://localhost:8080;
         }
     }
