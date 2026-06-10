@@ -25,6 +25,28 @@ spec:
         - name: apache-config
           mountPath: /usr/local/apache2/conf/extra/api-backend.conf
           subPath: api-backend.conf
+      - name: wazuh-agent
+        image: wazuh/wazuh-agent:4.13.1
+        env:
+        - name: WAZUH_MANAGER_SERVER
+          value: wazuh.wazuh.svc.cluster.local
+        - name: WAZUH_MANAGER_PORT
+          value: "1514"
+        - name: WAZUH_REGISTRATION_SERVER
+          value: wazuh.wazuh.svc.cluster.local
+        - name: WAZUH_REGISTRATION_PORT
+          value: "1515"
+        - name: WAZUH_REGISTRATION_PASSWORD
+          value: "password"
+        - name: WAZUH_AGENT_NAME
+          value: srv-app-01
+        resources:
+          requests:
+            cpu: 25m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
       volumes:
       - name: apache-config
         configMap:

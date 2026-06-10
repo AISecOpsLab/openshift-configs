@@ -25,6 +25,28 @@ spec:
         - name: nginx-config
           mountPath: /etc/nginx/conf.d/default.conf
           subPath: nginx.conf
+      - name: wazuh-agent
+        image: wazuh/wazuh-agent:4.13.1
+        env:
+        - name: WAZUH_MANAGER_SERVER
+          value: wazuh.wazuh.svc.cluster.local
+        - name: WAZUH_MANAGER_PORT
+          value: "1514"
+        - name: WAZUH_REGISTRATION_SERVER
+          value: wazuh.wazuh.svc.cluster.local
+        - name: WAZUH_REGISTRATION_PORT
+          value: "1515"
+        - name: WAZUH_REGISTRATION_PASSWORD
+          value: "password"   # mot de passe authd par défaut du lab (cf. openshift-infra/wazuh/secrets)
+        - name: WAZUH_AGENT_NAME
+          value: srv-web-01
+        resources:
+          requests:
+            cpu: 25m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
       volumes:
       - name: nginx-config
         configMap:
