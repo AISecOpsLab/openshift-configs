@@ -26,6 +26,31 @@ spec:
         - name: nginx-config
           mountPath: /etc/nginx/nginx.conf
           subPath: nginx.conf
+      # Sidecar Wazuh : agent SOC, s'enrôle automatiquement aupres du manager.
+      # Nom d'agent = hostname -> mappe agent.name sur target_host (contrat d'alerte).
+      # Collecte des logs applicatifs + regles de detection ajoutees en Phase 3.
+      - name: wazuh-agent
+        image: wazuh/wazuh-agent:4.13.1
+        env:
+        - name: WAZUH_MANAGER_SERVER
+          value: wazuh.wazuh.svc.cluster.local
+        - name: WAZUH_MANAGER_PORT
+          value: "1514"
+        - name: WAZUH_REGISTRATION_SERVER
+          value: wazuh.wazuh.svc.cluster.local
+        - name: WAZUH_REGISTRATION_PORT
+          value: "1515"
+        - name: WAZUH_REGISTRATION_PASSWORD
+          value: "password"
+        - name: WAZUH_AGENT_NAME
+          value: srv-web-02
+        resources:
+          requests:
+            cpu: 25m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
       volumes:
       - name: nginx-config
         configMap:
