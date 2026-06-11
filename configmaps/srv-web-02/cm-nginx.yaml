@@ -9,10 +9,6 @@ metadata:
     managed-by: aisecops-agent
 data:
   nginx.conf: |
-    # Nginx configuration — srv-web-02
-    # Rôle : reverse proxy avec load balancing vers srv-app-01 et srv-app-02
-    # CMDB : cmdb/srv-web-02.md
-
     user nginx;
     worker_processes auto;
     pid /tmp/nginx.pid;
@@ -47,6 +43,8 @@ data:
                         '"$http_user_agent" "$http_x_forwarded_for"';
         access_log /var/log/nginx/access.log main;
         error_log  /var/log/nginx/error.log warn;
+
+        limit_req_zone $binary_remote_addr zone=api:10m rate=20r/s;
 
         gzip on;
         gzip_vary on;

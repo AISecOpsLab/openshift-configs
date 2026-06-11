@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-wazuh-nginx-localfile
+  namespace: aisecops
+  labels:
+    app: aisecops
+    service: wazuh-agent
+# Script injecte dans les sidecars wazuh-agent des serveurs web, monte dans
+# /entrypoint-scripts/ : l'image l'execute (via 1-agent) AVANT de demarrer
+# l'agent, donc le localfile est pris en compte des le 1er boot.
+# Il cable la COLLECTE APPLICATIVE : ajoute le log d'acces nginx a la conf de
+# l'agent, pour que Wazuh decode les requetes (scan/injection/brute-force).
+# Idempotent (garde anti-doublon). Le log vient d'un volume emptyDir partage
+# avec le conteneur nginx (cf. deployments/srv-web-*.yaml).
+data:
+  10-aisecops-nginx-localfile.sh: |
+    #!/bin/sh
+    OSSEC_CONF=/var/ossec/etc/ossec.conf
+    LOG=/var/log/nginx/access.log
+    if ! grep -q "$LOG" "$OSSEC_CONF" 2>/dev/null; then
+      cat >> "$OSSEC_CONF" <<EOF
+    <ossec_config>
+      <localfile>
+        <log_format>apache</log_format>
+        <location>$LOG</location>
+      </localfile>
+    </ossec_config>
+    EOF
+    fi

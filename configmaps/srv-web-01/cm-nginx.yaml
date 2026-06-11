@@ -13,7 +13,10 @@ data:
         listen 80;
         server_name srv-web-01;
 
+        root /usr/share/nginx/html;
+        index index.html;
+
         location / {
-            proxy_pass http://localhost:8080;
+            try_files $uri $uri/ =404;
         }
     }
