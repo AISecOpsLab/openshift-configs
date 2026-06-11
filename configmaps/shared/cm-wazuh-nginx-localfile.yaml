@@ -6,13 +6,6 @@ metadata:
   labels:
     app: aisecops
     service: wazuh-agent
-# Script injecte dans les sidecars wazuh-agent des serveurs web, monte dans
-# /entrypoint-scripts/ : l'image l'execute (via 1-agent) AVANT de demarrer
-# l'agent, donc le localfile est pris en compte des le 1er boot.
-# Il cable la COLLECTE APPLICATIVE : ajoute le log d'acces nginx a la conf de
-# l'agent, pour que Wazuh decode les requetes (scan/injection/brute-force).
-# Idempotent (garde anti-doublon). Le log vient d'un volume emptyDir partage
-# avec le conteneur nginx (cf. deployments/srv-web-*.yaml).
 data:
   10-aisecops-nginx-localfile.sh: |
     #!/bin/sh
