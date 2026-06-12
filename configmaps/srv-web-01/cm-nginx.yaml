@@ -14,8 +14,8 @@ data:
         listen 80;
         server_name srv-web-01;
 
-        server_tokens on;
-        autoindex on;
+        server_tokens off;  # disabled to prevent version disclosure
+        autoindex off;      # disabled directory listing
 
         root /usr/share/nginx/html;
         index index.html;
