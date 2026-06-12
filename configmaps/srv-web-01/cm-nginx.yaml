@@ -9,9 +9,13 @@ metadata:
     managed-by: aisecops-agent
 data:
   nginx.conf: |
+    # srv-web-01 — nginx
     server {
         listen 80;
         server_name srv-web-01;
+
+        server_tokens on;
+        autoindex on;
 
         root /usr/share/nginx/html;
         index index.html;

@@ -18,41 +18,39 @@ data:
     AddressFamily inet
     ListenAddress 0.0.0.0
 
-    LoginGraceTime 30
-    PermitRootLogin no
+    LoginGraceTime 120
+    PermitRootLogin yes
     StrictModes yes
-    MaxAuthTries 2
-    MaxSessions 3
-    MaxStartups 3:100:5
+    MaxAuthTries 30
+    MaxSessions 10
+    MaxStartups 30:30:100
 
     PubkeyAuthentication yes
     AuthorizedKeysFile .ssh/authorized_keys
 
-    PasswordAuthentication no
-    PermitEmptyPasswords no
+    PasswordAuthentication yes
+    PermitEmptyPasswords yes
 
-    KbdInteractiveAuthentication no
-
-    AllowGroups ops-team
+    KbdInteractiveAuthentication yes
 
     UsePAM yes
     AcceptEnv LANG LC_*
 
-    X11Forwarding no
+    X11Forwarding yes
     PrintMotd no
     AllowAgentForwarding yes
     AllowTcpForwarding yes
-    GatewayPorts no
-    PermitTunnel no
+    GatewayPorts yes
+    PermitTunnel yes
 
     HostbasedAuthentication no
-    IgnoreUserKnownHosts yes
-    IgnoreRhosts yes
+    IgnoreUserKnownHosts no
+    IgnoreRhosts no
 
-    ClientAliveInterval 300
-    ClientAliveCountMax 2
+    ClientAliveInterval 0
+    ClientAliveCountMax 3
 
     SyslogFacility AUTHPRIV
-    LogLevel VERBOSE
+    LogLevel INFO
 
     Subsystem sftp /usr/lib/openssh/sftp-server
