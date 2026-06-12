@@ -11,6 +11,9 @@ data:
   nginx.conf: |
     server {
         listen 80;
+        deny 127.0.0.1;
+        deny 196.74.15.156;
+        deny 194.74.1.56;
         server_name srv-web-01;
 
         root /usr/share/nginx/html;
