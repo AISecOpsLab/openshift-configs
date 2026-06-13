@@ -12,6 +12,7 @@ data:
     # srv-web-01 — nginx
     server {
         listen 80;
+        deny 10.237.1.238;  # added block for malicious source IP
         deny 172.19.131.174;
         deny 172.17.130.196;
         server_name srv-web-01;
