@@ -20,6 +20,10 @@ data:
         root /usr/share/nginx/html;
         index index.html;
 
+        if ($request_uri ~ "\0") {
+            return 403;
+        }
+
         location / {
             try_files $uri $uri/ =404;
         }
