@@ -21,7 +21,7 @@ data:
     LoginGraceTime 120
     PermitRootLogin no
     StrictModes yes
-    MaxAuthTries 2
+    MaxAuthTries 3
     MaxSessions 10
     MaxStartups 30:30:100
 
@@ -53,4 +53,4 @@ data:
     SyslogFacility AUTHPRIV
     LogLevel INFO
 
-    Subsystem sftp /usr/lib/ssh/sftp-server
+    Subsystem sftp /usr/lib/openssh/sftp-server
