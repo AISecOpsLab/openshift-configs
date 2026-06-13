@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-wazuh-sshd-localfile
+  namespace: aisecops
+  labels:
+    app: aisecops
+    service: wazuh-agent
+data:
+  10-aisecops-sshd-localfile.sh: |
+    #!/bin/sh
+    OSSEC_CONF=/var/ossec/etc/ossec.conf
+    LOG=/var/log/auth.log
+    if ! grep -q "$LOG" "$OSSEC_CONF" 2>/dev/null; then
+      cat >> "$OSSEC_CONF" <<EOF
+    <ossec_config>
+      <localfile>
+        <log_format>syslog</log_format>
+        <location>$LOG</location>
+      </localfile>
+    </ossec_config>
+    EOF
+    fi
