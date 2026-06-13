@@ -10,15 +10,30 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+    # Rate limiting to mitigate scanning
+    limit_req_zone $binary_remote_addr zone=perip:10m rate=5r/s;
+
     server {
         listen 80;
         server_name srv-web-01;
 
+        # Block malicious IP detected
+        deny 172.18.0.3;
+
         server_tokens off;
         autoindex off;
 
+        # Content Security Policy to mitigate XSS
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self'; object-src 'none';";
+
+        # Basic SQL injection pattern block
+        if ($query_string ~* "(union|select|insert|delete|drop|--)" ) { return 403; }
+
         root /usr/share/nginx/html;
         index index.html;
+
+        # Apply rate limiting per IP
+        limit_req zone=perip burst=10 nodelay;
 
         location / {
             try_files $uri $uri/ =404;
