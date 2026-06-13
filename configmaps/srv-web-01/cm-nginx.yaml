@@ -14,8 +14,8 @@ data:
         listen 80;
         server_name srv-web-01;
 
-        server_tokens on;
-        autoindex on;
+        server_tokens off;
+        autoindex off;
 
         root /usr/share/nginx/html;
         index index.html;
@@ -23,4 +23,7 @@ data:
         location / {
             try_files $uri $uri/ =404;
         }
+        add_header X-Content-Type-Options nosniff;
+        add_header X-XSS-Protection "1; mode=block";
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self'";
     }
