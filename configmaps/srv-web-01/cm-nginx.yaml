@@ -12,10 +12,15 @@ data:
     # srv-web-01 — nginx
     server {
         listen 80;
+        deny 172.19.131.174;
         server_name srv-web-01;
 
-        server_tokens on;
-        autoindex on;
+        # Rate limiting to mitigate scanning / brute request bursts
+        limit_req_zone $binary_remote_addr zone=scan:10m rate=10r/s;
+        limit_req zone=scan burst=20 nodelay;
+
+        server_tokens off;  # disabled to reduce information leakage
+        autoindex off;      # disabled directory listing
 
         root /usr/share/nginx/html;
         index index.html;
