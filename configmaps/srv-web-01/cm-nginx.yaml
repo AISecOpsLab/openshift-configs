@@ -10,12 +10,24 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+    # Rate limiting zone
+    limit_req_zone $binary_remote_addr zone=one:10m rate=5r/s;
     server {
         listen 80;
         server_name srv-web-01;
 
         server_tokens off;
         autoindex off;
+
+        # Block malicious IP
+        deny 172.18.0.3;
+        allow all;
+
+        # Mitigate XSS via CSP
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self';";
+
+        # Rate limiting to mitigate scanning
+        limit_req zone=one burst=10 nodelay;
 
         root /usr/share/nginx/html;
         index index.html;
