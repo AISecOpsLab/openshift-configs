@@ -14,8 +14,14 @@ data:
         listen 80;
         server_name srv-web-01;
 
+        # Block malicious IP identified by Wazuh scan
+        deny 172.18.0.3;
+
         server_tokens off;
         autoindex off;
+        # Mitigate XSS attacks by adding security headers
+        add_header X-XSS-Protection "1; mode=block";
+        add_header Content-Security-Policy "default-src 'self'";
 
         root /usr/share/nginx/html;
         index index.html;
@@ -23,7 +29,6 @@ data:
         location / {
             try_files $uri $uri/ =404;
         }
-        add_header X-Content-Type-Options nosniff;
-        add_header X-XSS-Protection "1; mode=block";
-        add_header Content-Security-Policy "default-src 'self'; script-src 'self'";
+        # Block null byte injection attempts
+        if ($request_uri ~ "%00") { return 444; }
     }
