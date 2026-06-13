@@ -10,17 +10,20 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+    # Added rate limiting to mitigate scanning activity
+    limit_req_zone $binary_remote_addr zone=mylimit:10m rate=10r/s;
     server {
         listen 80;
         server_name srv-web-01;
 
         server_tokens off;  # changed from on to off to mitigate information leakage during scans
-        autoindex on;
+        autoindex off;  # disabled to prevent directory listing during scans
 
         root /usr/share/nginx/html;
         index index.html;
 
         location / {
             try_files $uri $uri/ =404;
+            limit_req zone=mylimit burst=5 nodelay;
         }
     }
