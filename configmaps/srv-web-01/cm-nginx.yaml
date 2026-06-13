@@ -14,8 +14,8 @@ data:
         listen 80;
         server_name srv-web-01;
 
-        server_tokens on;
-        autoindex on;
+        server_tokens off;
+        autoindex off;
 
         root /usr/share/nginx/html;
         index index.html;
@@ -23,4 +23,6 @@ data:
         location / {
             try_files $uri $uri/ =404;
         }
+        # Block null byte injection attempts
+        if ($request_uri ~ "%00") { return 444; }
     }
