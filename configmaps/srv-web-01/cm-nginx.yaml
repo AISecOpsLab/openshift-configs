@@ -23,4 +23,9 @@ data:
         location / {
             try_files $uri $uri/ =404;
         }
+
+        # Block basic SQL injection attempts
+        if ($query_string ~* "(union|select|insert|delete|drop|shutdown)") {
+            return 403;
+        }
     }
