@@ -14,6 +14,10 @@ data:
         listen 80;
         server_name srv-web-01;
 
+        # Rate limiting to mitigate scanning / brute request bursts
+        limit_req_zone $binary_remote_addr zone=scan:10m rate=10r/s;
+        limit_req zone=scan burst=20 nodelay;
+
         server_tokens off;  # disabled to reduce information leakage
         autoindex off;      # disabled directory listing
 
