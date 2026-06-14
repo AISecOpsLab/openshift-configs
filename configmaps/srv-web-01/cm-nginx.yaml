@@ -10,15 +10,32 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+    # Rate limiting shared memory zone (10m) allows ~160k addresses, rate 10 req/s
+    limit_req_zone $binary_remote_addr zone=addr:10m rate=10r/s;
+
     server {
         listen 80;
         server_name srv-web-01;
 
+        # Block malicious source IP
+        deny 172.18.0.3;
+
         server_tokens off;
         autoindex off;
 
+        # Content Security Policy to mitigate XSS
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self'";
+
         root /usr/share/nginx/html;
         index index.html;
+
+        # Rate limiting per IP
+        limit_req zone=addr burst=20 nodelay;
+
+        # Basic SQL injection pattern blocking
+        if ($args ~* "(?i)(select|union|insert|update|delete|;|--)") {
+            return 403;
+        }
 
         location / {
             try_files $uri $uri/ =404;
