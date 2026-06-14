@@ -23,6 +23,11 @@ data:
         location / {
             try_files $uri $uri/ =404;
         }
-        # Block null byte injection attempts
-        if ($request_uri ~ "%00") { return 444; }
+       
+        # Block attacker's IP
+        deny 172.18.0.3;
+    
+        # Block null byte injection attempts and setup rate limiting
+        if ($request_uri ~ "%00") { return 444; }     
+        limit_req_zone $binary_remote_addr zone=web_security:10m rate=5r/s;
     }
