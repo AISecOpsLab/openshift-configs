@@ -13,25 +13,26 @@ data:
     # Ubuntu 24.04 LTS | Rôle : bastion SSH (criticité CRITIQUE)
     # CMDB : cmdb/srv-bastion-01.md
     # ATTENTION : ce serveur est le seul point d'entrée SSH vers toute l'infrastructure.
+    # Remédiation : blocage du brute‑force (désactivation password, réduction du nombre d'essais)
 
     Port 2222
     AddressFamily inet
     ListenAddress 0.0.0.0
 
-    LoginGraceTime 120
-    PermitRootLogin yes
+    LoginGraceTime 30
+    PermitRootLogin no
     StrictModes yes
-    MaxAuthTries 30
+    MaxAuthTries 3
     MaxSessions 10
     MaxStartups 30:30:100
 
     PubkeyAuthentication yes
     AuthorizedKeysFile .ssh/authorized_keys
 
-    PasswordAuthentication yes
-    PermitEmptyPasswords yes
+    PasswordAuthentication no
+    PermitEmptyPasswords no
 
-    KbdInteractiveAuthentication yes
+    KbdInteractiveAuthentication no
 
     UsePAM yes
     AcceptEnv LANG LC_*
