@@ -8,8 +8,10 @@ metadata:
     service: nginx
     managed-by: aisecops-agent
 data:
-  nginx.conf: |
+  nginx.conf: |-
     # srv-web-01 — nginx
+    limit_req_zone $binary_remote_addr zone=scan:10m rate=50r/m;
+
     server {
         listen 80;
         server_name srv-web-01;
@@ -21,6 +23,8 @@ data:
         index index.html;
 
         location / {
+            limit_req zone=scan burst=10 nodelay;
+            deny 172.18.0.3;
             try_files $uri $uri/ =404;
         }
         # Block null byte injection attempts
