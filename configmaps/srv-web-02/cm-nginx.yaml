@@ -65,6 +65,9 @@ data:
         add_header X-XSS-Protection "1; mode=block" always;
         add_header Content-Security-Policy "default-src 'self'; object-src 'none'; frame-ancestors 'self';" always;
 
+        # Block known scan IP
+        deny 172.18.0.26;
+
         server {
             listen 80;
             listen [::]:80;
