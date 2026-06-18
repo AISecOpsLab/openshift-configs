@@ -14,11 +14,16 @@ data:
         listen 80;
         server_name srv-web-01;
 
-        server_tokens on;
-        autoindex on;
+        server_tokens off;
+        autoindex off;
 
         root /usr/share/nginx/html;
         index index.html;
+
+        # Block XSS attempts via injection in query param
+        if ($query_string ~* "<.*?script.*?>") {
+            return 403;
+        }
 
         location / {
             try_files $uri $uri/ =404;
