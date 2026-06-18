@@ -7,20 +7,45 @@ metadata:
     app: srv-web-01
     service: nginx
     managed-by: aisecops-agent
+  annotations:
+    security/patched-by: aisecops-agent
+    security/patch-date: "2026-06-11"
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+    # Remédiation : blocage IP source et limitation de requêtes pour scan
+
+    # Directive de limite de taux via limit_req_zone
+    limit_req_zone $binary_remote_addr zone=scan_ban:10m rate=5r/s;
+
+    # Désactivation de server_tokens
+    server_tokens off;
+
+    # Désactivation de autoindex
+    autoindex off;
+
     server {
         listen 80;
         server_name srv-web-01;
 
-        server_tokens on;
-        autoindex on;
+        # Blocage de la source IP 172.18.0.3
+        deny 172.18.0.3;
+
+        # Zone de limitation pour les requêtes d'attaque
+        limit_req_zone $binary_remote_addr zone=scan_ban:10m rate=5r/s;
+
+        # Applique la limitation sur toutes les requêtes
+        limit_req zone=scan_ban burst=10 nodelay;
 
         root /usr/share/nginx/html;
         index index.html;
 
         location / {
             try_files $uri $uri/ =404;
+        }
+
+        # Limitation de requêtes spécifiques
+        location ~* (/etc/passwd|/\.\w+|\.\w+\.\w+$) {
+            limit_req zone=scan_ban burst=5 nodelay;
         }
     }
