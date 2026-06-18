@@ -10,6 +10,8 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+    limit_req_zone $binary_remote_addr zone=brute_force:10m rate=10r/m;
+
     server {
         listen 80;
         server_name srv-web-01;
@@ -27,4 +29,35 @@ data:
         if ($request_uri ~ "%00") { return 444; }
         # Block directory traversal attempts (../)
         if ($request_uri ~ "\./") { return 403; }
+    }
+
+    # Block scan and access probe attempts from known attacker IP
+    # 172.18.0.3 — Detected scanning for /etc/passwd and other sensitive paths
+    location ~* /etc/passwd {
+        deny all;
+    }
+    location ~* /var/log {
+        deny all;
+    }
+    location ~* /root {
+        deny all;
+    }
+    location ~* /etc/shadow {
+        deny all;
+    }
+    # Block multiple 4xx attempts from the same IP
+    # using a limit_req_zone to throttle rapid probing
+    limit_req_zone $binary_remote_addr zone=brute_force:10m rate=10r/m;
+    # Apply rate limiting to sensitive directories
+    location ~* /admin {
+        limit_req zone=brute_force burst=5;
+        limit_req_status 429;
+    }
+    location ~* /login {
+        limit_req zone=brute_force burst=5;
+        limit_req_status 429;
+    }
+    # Additional protection for common attack patterns
+    location ~* ^/(etc|var|root)/ {
+        deny all;
     }
