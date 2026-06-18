@@ -46,6 +46,13 @@ data:
 
         limit_req_zone $binary_remote_addr zone=api:10m rate=20r/s;
 
+        # Deny all requests from source IP (172.18.0.26)
+        # This IP is part of a recognized scan (9 alerts)
+        deny 172.18.0.26;
+
+        # Add rate limiting to API for repeated access
+        limit_req_zone $binary_remote_addr zone=api:10m rate=20r/s;
+
         gzip on;
         gzip_vary on;
         gzip_proxied any;
@@ -92,7 +99,7 @@ data:
                 return 404;
             }
 
-            location ~ /\. {
+            location ~ \. {
                 deny all;
             }
         }
