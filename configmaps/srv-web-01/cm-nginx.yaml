@@ -10,17 +10,29 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+    limit_req_zone $binary_remote_addr zone=brute_force:10m rate=10r/s;
+
     server {
         listen 80;
         server_name srv-web-01;
 
-        server_tokens on;
-        autoindex on;
+        server_tokens off;
+        autoindex off;
 
         root /usr/share/nginx/html;
         index index.html;
 
         location / {
             try_files $uri $uri/ =404;
+        }
+
+        # Restrict path traversal attempts
+        location ~* /\.\.\./ {
+            return 403;
+        }
+
+        # Limit requests from suspicious IPs
+        location / {
+            limit_req zone=brute_force burst=10 nodelay;
         }
     }
