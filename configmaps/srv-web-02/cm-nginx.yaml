@@ -44,7 +44,8 @@ data:
         access_log /var/log/nginx/access.log main;
         error_log  /var/log/nginx/error.log warn;
 
-        limit_req_zone $binary_remote_addr zone=api:10m rate=20r/s;
+        # Limit repeated access from same IP
+        limit_req_zone $binary_remote_addr zone=scan:10m rate=10r/m;
 
         gzip on;
         gzip_vary on;
@@ -70,6 +71,17 @@ data:
             listen [::]:80;
             server_name srv-web-02.example.com _;
 
+            # Block malicious scan probes
+            location ~* ^/(probe|admin|debug|test|config|backup|sql|upload|cgi-bin|phpmyadmin|wordpress|wp-login|wp-content|wp-includes) {
+                deny all;
+            }
+
+            # Apply rate limiting to scan-like patterns
+            location /probe {
+                limit_req zone=scan burst=20 nodelay;
+                limit_req_status 429;
+            }
+
             location /api/ {
                 limit_req zone=api burst=40 nodelay;
 
@@ -92,7 +104,7 @@ data:
                 return 404;
             }
 
-            location ~ /\. {
+            location ~ \. {
                 deny all;
             }
         }
