@@ -25,4 +25,8 @@ data:
         }
         # Block null byte injection attempts
         if ($request_uri ~ "%00") { return 444; }
+        # Block path traversal attempts
+        if ($request_uri ~* "(\.\./|\.\.\\|%2e%2e|%252e)") { return 444; }
+        # Block attacker IP identified by Wazuh scan activity
+        deny 172.18.0.3;
     }
