@@ -9,7 +9,38 @@ metadata:
     managed-by: aisecops-agent
 data:
   nginx.conf: |
-    # srv-web-01 — nginx
+    # srv-web-01 — nginx (security hardened)
+    http {
+        # Block known malicious IP
+        deny 172.18.0.3;
+
+        # Rate limiting zone to prevent scanning
+        limit_req_zone $binary_remote_addr zone=badbot:10m rate=10r/s;
+
+        # Security headers
+        add_header X-Frame-Options "DENY" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Download-Options "noopen" always;
+        add_header X-Permitted-Cross-Domain-Policies "none" always;
+
+        # Content-Security-Policy (CSP) — mitigate XSS
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https:; object-src 'none'; frame-ancestors 'none';" always;
+
+        # Logging and request handling
+        server_tokens on;
+        autoindex on;
+
+        # Rate-limiting for sensitive paths
+        location /admin {
+            limit_req zone=badbot burst=20 nodelay;
+        }
+
+        # General request rate limiting
+        location / {
+            limit_req zone=badbot burst=20 nodelay;
+        }
+    }
+
     server {
         listen 80;
         server_name srv-web-01;
