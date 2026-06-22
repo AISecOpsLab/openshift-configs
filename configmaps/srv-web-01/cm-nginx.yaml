@@ -11,6 +11,7 @@ data:
   nginx.conf: |
     # srv-web-01 — nginx
     server {
+erver {
         listen 80;
         server_name srv-web-01;
 
@@ -23,4 +24,11 @@ data:
         location / {
             try_files $uri $uri/ =404;
         }
+
+    deny 172.19.131.174;
+
+    location ~* /.*ht.* {
+      deny all;
     }
+
+}
