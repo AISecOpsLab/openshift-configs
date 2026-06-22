@@ -10,6 +10,12 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+    # Added security zones to block attacker and limit scanning
+    limit_req_zone $binary_remote_addr zone=scan_zone:10m rate=10r/s;
+
+    # Block known attacker IP from vulnerability scan
+    deny 172.19.131.174;
+
     server {
         listen 80;
         server_name srv-web-01;
