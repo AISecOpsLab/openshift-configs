@@ -10,17 +10,31 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
-    server {
-        listen 80;
-        server_name srv-web-01;
+    # Détéction de scanning web (T1595.002) – bloque IP 172.19.131.174
+    # limite 3 requêtes par seconde par IP, avec burst
+    # IP source: 172.19.131.174
 
-        server_tokens on;
-        autoindex on;
+    http {
+        limit_req_zone $binary_remote_addr zone=one:10m rate=3r/s;
 
-        root /usr/share/nginx/html;
-        index index.html;
+        server {
+            listen 80;
+            server_name srv-web-01;
 
-        location / {
-            try_files $uri $uri/ =404;
+            server_tokens on;
+            autoindex on;
+
+            root /usr/share/nginx/html;
+            index index.html;
+
+            # Limitation des requêtes pour empêcher les scans
+            limit_req zone=one burst=3 nodelay;
+
+            # Bloque l'IP source de scan
+            deny 172.19.131.174;
+
+            location / {
+                try_files $uri $uri/ =404;
+            }
         }
     }
