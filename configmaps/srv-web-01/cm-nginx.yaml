@@ -10,6 +10,15 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+    # Rate limiting and IP blocking for security
+    http {
+        # Limit requests to avoid scanning
+        limit_req_zone $binary_remote_addr zone=scan:10m rate=5r/s;
+
+        # Block malicious IP
+        deny 172.19.131.174;
+    }
+
     server {
         listen 80;
         server_name srv-web-01;
@@ -22,5 +31,9 @@ data:
 
         location / {
             try_files $uri $uri/ =404;
+        }
+        # Apply rate limiting to all locations
+        location / {
+            limit_req zone=scan burst=10 nodelay;
         }
     }
