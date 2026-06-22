@@ -10,12 +10,23 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+    http {
+        # Prevent version exposure
+        server_tokens off;
+
+        # Block scan source IP
+        deny 172.19.131.174;
+
+        # Rate limit for scan attacks
+        limit_req_zone $binary_remote_addr zone=scan:50m rate=10r/m;
+    }
+
     server {
         listen 80;
         server_name srv-web-01;
 
-        server_tokens on;
-        autoindex on;
+        # Rate limit scans
+        limit_req zone=scan burst=5 nodelay;
 
         root /usr/share/nginx/html;
         index index.html;
