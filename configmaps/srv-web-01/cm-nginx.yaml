@@ -1,26 +1,27 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: cm-srv-web-01-nginx
-  namespace: aisecops
-  labels:
-    app: srv-web-01
-    service: nginx
-    managed-by: aisecops-agent
-data:
-  nginx.conf: |
-    # srv-web-01 — nginx
-    server {
-        listen 80;
-        server_name srv-web-01;
+# srv-web-01 — nginx
 
-        server_tokens on;
-        autoindex on;
+# Define a shared memory zone for rate limiting (10 req/sec, 1000 IP)
+limit_req_zone $binary_remote_addr zone=scan_zone:10m rate=10r/s;
 
-        root /usr/share/nginx/html;
-        index index.html;
+server {
+    listen 80;
+    server_name srv-web-01;
 
-        location / {
-            try_files $uri $uri/ =404;
-        }
+    server_tokens on;
+    autoindex on;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Limit requests per IP to 10 per second with 50 burst
+    limit_req zone=scan_zone burst=50 nodelay;
+
+    # Block common scan paths
+    location ~* /(admin|login|cgi-bin|\.cache|\.git|\.svn|\.htaccess|\.gitignore|\.env|config\.yml|backup|db|sql|dump|wp-config\.php) {
+        deny all;
     }
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
