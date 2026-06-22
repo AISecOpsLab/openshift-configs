@@ -1,3 +1,4 @@
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -10,6 +11,9 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+    # Rate limiting for vulnerability scanning attempts
+    limit_req_zone $binary_remote_addr zone=scan_zone:10m rate=10r/s;
+
     server {
         listen 80;
         server_name srv-web-01;
@@ -22,5 +26,12 @@ data:
 
         location / {
             try_files $uri $uri/ =404;
+        }
+
+        # Limit requests to /sdk to prevent scanning
+        location /sdk {
+            limit_req zone=scan_zone burst=20 nodelay;
+            try_files $uri $uri/ =404;
+            allow all;
         }
     }
