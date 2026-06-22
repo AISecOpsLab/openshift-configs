@@ -10,17 +10,37 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
-    server {
-        listen 80;
-        server_name srv-web-01;
+    # Rate limiting for scan protection
+    limit_req_zone $binary_remote_addr zone=scan_zone:10m rate=10r/s;
 
-        server_tokens on;
-        autoindex on;
+    # Define the rate limit for scan-like requests
+    http {
+        # Limit requests to prevent automated scanning
+        limit_req_zone $binary_remote_addr zone=scan_zone:10m rate=10r/s;
 
-        root /usr/share/nginx/html;
-        index index.html;
+        server {
+            listen 80;
+            server_name srv-web-01;
 
-        location / {
-            try_files $uri $uri/ =404;
+            server_tokens on;
+            autoindex on;
+
+            root /usr/share/nginx/html;
+            index index.html;
+
+            # Block known scan paths
+            location ~* (/\.cvsignore|/\.git|/\.svn|/admin|/backup|/config\.ini|/web\.config|/phpmyadmin|/wp-admin|/README\.txt|/LICENSE) {
+                deny all;
+            }
+
+            location / {
+                try_files $uri $uri/ =404;
+            }
+
+            # Use the rate limit zone for sensitive areas
+            location ~* /\.(?i:cvsignore|git|svn|admin|backup|config\.ini|web\.config|phpmyadmin|wp-admin|README\.txt|LICENSE) {
+                limit_req zone=scan_zone burst=20 nodelay;
+                deny all;
+            }
         }
     }
