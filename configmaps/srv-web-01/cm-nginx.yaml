@@ -10,17 +10,40 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+    # Rate limiting and recon blocking
+    # Block excessive requests from scanning IPs
+
+    # Rate limiting zone: 10 requests per second per IP, 10mb zone
+    limit_req_zone $binary_remote_addr zone=scan:10m rate=10r/s;
+
+    # Define blocked IP (172.19.131.174) for reconnaissance
+    geo $blocked {
+        default 0;
+        172.19.131.174 1;
+    }
+
     server {
         listen 80;
         server_name srv-web-01;
 
-        server_tokens on;
+        # Disable server version in headers
+        server_tokens off;
+
+        # Enable autoindex (if needed for internal access only)
         autoindex on;
 
         root /usr/share/nginx/html;
         index index.html;
 
+        # Apply rate limiting on / and any location
+        # Block if client is in blocked geo zone
+        if ($blocked) {
+            return 403;
+        }
+
         location / {
             try_files $uri $uri/ =404;
+            # Rate limit requests to 10 per second per IP
+            limit_req zone=scan burst=20 nodelay;
         }
     }
