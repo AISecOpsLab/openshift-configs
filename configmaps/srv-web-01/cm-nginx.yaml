@@ -10,17 +10,27 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+    # Limit request rate to prevent scan/brute-force
+    limit_req_zone $binary_remote_addr zone=scan:10m rate=5r/s;
+
+    # Disable server tokens to hide Nginx version
+    server_tokens off;
+
     server {
         listen 80;
         server_name srv-web-01;
 
-        server_tokens on;
-        autoindex on;
+        # Block known scanner IP
+        deny 172.19.131.174;
 
-        root /usr/share/nginx/html;
-        index index.html;
-
+        # Rate limit GET requests
         location / {
+            limit_req zone=scan burst=5 nodelay;
             try_files $uri $uri/ =404;
+        }
+
+        # Prevent scanning of sensitive paths
+        location ~ /_(dummy|admin|config|backup|sql|db) {
+            deny all;
         }
     }
