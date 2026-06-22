@@ -10,6 +10,9 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+http {
+    deny 172.19.131.174;
+
     server {
         listen 80;
         server_name srv-web-01;
@@ -24,3 +27,4 @@ data:
             try_files $uri $uri/ =404;
         }
     }
+}
