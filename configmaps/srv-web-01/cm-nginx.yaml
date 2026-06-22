@@ -10,17 +10,35 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
-    server {
-        listen 80;
-        server_name srv-web-01;
+    # Rate limiting and IP blocking for security
+    # Block and rate limit scan attempts from 172.19.131.174
+    # See: Wazuh rule 31151, MITRE T1595.002 (Reconnaissance)
 
-        server_tokens on;
-        autoindex on;
+    limit_req_zone $binary_remote_addr zone=scan_zone:10m rate=1r/s;
 
-        root /usr/share/nginx/html;
-        index index.html;
+    http {
+        # Deny known scanner IPs to prevent further scanning
+        deny 172.19.131.174;
 
-        location / {
-            try_files $uri $uri/ =404;
+        # Rate limit requests from any source to prevent flooding
+        limit_req_zone $binary_remote_addr zone=one:10m rate=10r/s;
+
+        # Include site-specific server configs
+        include /etc/nginx/conf.d/*.conf;
+
+        # Use the rate limit zone for requests
+        server {
+            listen 80;
+            server_name srv-web-01;
+
+            server_tokens on;
+            autoindex on;
+
+            root /usr/share/nginx/html;
+            index index.html;
+
+            location / {
+                try_files $uri $uri/ =404;
+            }
         }
     }
