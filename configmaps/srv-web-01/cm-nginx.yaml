@@ -10,33 +10,11 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
-    # Deny known scanner IP
-    # Rate limit to prevent abuse
-    # Block XSS vectors via CSP and limit Req
-
-    # Limit request rate at http level
-    limit_req_zone $binary_remote_addr zone=scan:10m rate=10r/s;
-
     server {
         listen 80;
         server_name srv-web-01;
-
-        # Hide nginx version to reduce fingerprinting
-        server_tokens off;
-
-        # Disable directory listing
-        autoindex off;
-
-        # Security headers
-        add_header X-Content-Type-Options "nosniff" always;
-        add_header X-Frame-Options "DENY" always;
-        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; object-src 'none';" always;
-
-        # Block known attacker IP
-        deny 172.18.0.3;
-
-        # Rate limit scan attempts
-        limit_req zone=scan burst=20 nodelay;
+        server_tokens on;
+        autoindex on;
 
         root /usr/share/nginx/html;
         index index.html;
