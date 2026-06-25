@@ -9,18 +9,50 @@ metadata:
     managed-by: aisecops-agent
 data:
   nginx.conf: |
-    # srv-web-01 — nginx
-    server {
-        listen 80;
-        server_name srv-web-01;
+# srv-web-01 — nginx
+limit_req_zone $binary_remote_addr zone=scan_zone:10m rate=10r/s;
 
-        server_tokens on;
-        autoindex on;
+map $args $block_sql_injection {
+    default 0;
+    "~*\b(select|insert|update|delete|drop|union|from|where|or|and|union|sleep|benchmark|load_file|infile|outfile|into|outfile|execute|exec|system|sh|bash|zsh|wget|curl)\b" 1;
+    "~*\b(sql|injection|error|trace)\b" 1;
+}
 
-        root /usr/share/nginx/html;
-        index index.html;
+server {
+    listen 80;
+    server_name srv-web-01;
 
-        location / {
-            try_files $uri $uri/ =404;
+    server_tokens off;
+    autoindex off;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    # Rate limiting for scan attempts
+    location / {
+        limit_req zone=scan_zone burst=20 nodelay;
+    }
+
+    # Block SQL injection attempts in query string
+    location / {
+        if ($block_sql_injection) {
+            return 403;
         }
     }
+
+    # Additional security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Permitted-Cross-Domain-Policies "none" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; object-src 'none';" always;
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+
+    # Deny access to common attack paths
+    location ~* /admin|/sql|/phpmyadmin|/admin.php|/dbadmin|/test |/debug|/backdoor|/upload {
+        return 403;
+    }
+}
