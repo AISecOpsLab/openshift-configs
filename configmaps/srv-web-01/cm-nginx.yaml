@@ -10,6 +10,9 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+    # Enhanced security: block malicious IP, rate-limit scans, prevent XSS/SQLi
+    limit_req_zone $binary_remote_addr zone=scan_block:10m rate=10r/s;
+
     server {
         listen 80;
         server_name srv-web-01;
@@ -17,10 +20,28 @@ data:
         server_tokens on;
         autoindex on;
 
-        root /usr/share/nginx/html;
-        index index.html;
+        # === Security Hardening ===
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; object-src 'none';" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "DENY" always;
+
+        # === Deny known malicious IPs and paths ===
+        deny 172.18.0.3;
 
         location / {
             try_files $uri $uri/ =404;
         }
+
+        # === Block known attack paths ===
+        location ~* /(xsql|test.shtml|admin|DjYEtlWE\.(cfg|cfm|htaccess~)) {
+            return 403;
+        }
+
+        # === Rate limiting for scan attempts ===
+        location / {
+            limit_req zone=scan_block burst=20 nodelay;
+        }
+
+        root /usr/share/nginx/html;
+        index index.html;
     }
