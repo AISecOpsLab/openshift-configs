@@ -14,8 +14,8 @@ limit_req_zone $binary_remote_addr zone=scan_zone:10m rate=10r/s;
 
 map $args $block_sql_injection {
     default 0;
-    "~*\b(select|insert|update|delete|drop|union|from|where|or|and|union|sleep|benchmark|load_file|infile|outfile|into|outfile|execute|exec|system|sh|bash|zsh|wget|curl)\b" 1;
-    "~*\b(sql|injection|error|trace)\b" 1;
+    "~*(select|insert|update|delete|drop|union|from|where|or|and|union|sleep|benchmark|load_file|infile|outfile|into|outfile|execute|exec|system|sh|bash|zsh|wget|curl)" 1;
+    "~*(sql|injection|error|trace)" 1;
 }
 
 server {
