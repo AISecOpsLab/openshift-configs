@@ -68,10 +68,10 @@ spec:
         resources:
           requests:
             cpu: 25m
-            memory: 64Mi
+            memory: 192Mi
           limits:
             cpu: 100m
-            memory: 128Mi
+            memory: 384Mi
       volumes:
       - name: sshd-config
         configMap:
