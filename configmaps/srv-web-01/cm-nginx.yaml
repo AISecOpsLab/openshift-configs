@@ -19,6 +19,9 @@ data:
         root /usr/share/nginx/html;
         index index.html;
 
+        # Block suspicious scanning traffic from known aggressor
+        deny 172.19.131.174;
+
         location / {
             try_files $uri $uri/ =404;
         }
