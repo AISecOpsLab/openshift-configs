@@ -10,14 +10,27 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+    # Limitation de débit pour les scanners
+    limit_req_zone $binary_remote_addr zone=perip:10m rate=10r/s;
+
     server {
         listen 80;
         server_name srv-web-01;
         server_tokens on;
         autoindex on;
 
+        # Bloquer l'IP qui scanne
+        deny 172.19.131.174;
+
+        # Limitation du débit
+        limit_req zone=perip burst=20 nodelay;
+
         root /usr/share/nginx/html;
         index index.html;
+
+        # Fermer les chemins sensibles détectés par le scan
+        location ~ ^/\.(git|env|svn) { return 444; }
+        location ~ ^/(wp-admin|wp-login|phpmyadmin) { return 444; }
 
         location / {
             try_files $uri $uri/ =404;
