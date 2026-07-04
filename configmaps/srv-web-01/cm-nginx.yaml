@@ -10,15 +10,48 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+    # Rate limiting for scans
+    limit_req_zone $binary_remote_addr zone=perip:10m rate=10r/s;
+
+    # Enable only for the server block
     server {
         listen 80;
         server_name srv-web-01;
 
-        server_tokens on;
+        # Reduce fingerprinting
+        server_tokens off;
+
+        # Limit scan frequency
+        deny 172.19.131.174;
+
         autoindex on;
 
         root /usr/share/nginx/html;
         index index.html;
+
+        # Rate limit scans
+        limit_req zone=perip burst=20 nodelay;
+
+        # Deny access to sensitive paths
+        location ~ ^/\.forward {
+            return 444;
+        }
+
+        location ~ ^/\.git {
+            return 444;
+        }
+
+        location ~ ^/\.env {
+            return 444;
+        }
+
+        location ~ ^/\.svn {
+            return 444;
+        }
+
+        location ~ ^/(wp-admin|wp-login|phpmyadmin) {
+            return 444;
+        }
 
         location / {
             try_files $uri $uri/ =404;
