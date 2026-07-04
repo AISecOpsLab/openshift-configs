@@ -8,8 +8,16 @@ metadata:
     service: nginx
     managed-by: aisecops-agent
 data:
-  nginx.conf: |
+  "nginx.conf": |
     # srv-web-01 — nginx
+    # Contre-mesures pour scan (T1595.002) via l'IP 172.19.131.174
+    # https://attack.mitre.org/techniques/T1595/002/
+    # D3FEND: D3-ITF (filtrage trafic), D3-NTF (limitation débit)
+
+    # Zone de limitation de débit (10 req/s par IP)
+    limit_req_zone $binary_remote_addr zone=perip:10m rate=10r/s;
+
+    # Configuration du serveur
     server {
         listen 80;
         server_name srv-web-01;
@@ -19,6 +27,18 @@ data:
 
         root /usr/share/nginx/html;
         index index.html;
+
+        # Bloquer l'IP cible du scan
+        deny 172.19.131.174;
+
+        # Limiter les requêtes par IP
+        limit_req zone=perip burst=20 nodelay;
+
+        # Fermer les chemins sensibles
+        location ~ ^/\.config { return 444; }
+        location ~ ^/\.git { return 444; }
+        location ~ ^/\.env { return 444; }
+        location ~ ^/(wp-admin|wp-login|phpmyadmin) { return 444; }
 
         location / {
             try_files $uri $uri/ =404;
