@@ -10,6 +10,10 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+    # Rate-limiting for vulnerability scanning
+    limit_req_zone $binary_remote_addr zone=scan_zone:10m rate=1r/s;
+
+    # HTTP-level directives
     server {
         listen 80;
         server_name srv-web-01;
@@ -21,5 +25,10 @@ data:
 
         location / {
             try_files $uri $uri/ =404;
+        }
+
+        # Apply rate limiting to common scanning paths
+        location ~* ^/(\.cvsignore|\.git|\.svn|\.htaccess|\.bash_history|\.env|\.ini|\.log|\.backup|\.tmp|\.gitignore|\.DS_Store) {
+            limit_req zone=scan_zone burst=5 nodelay;
         }
     }
