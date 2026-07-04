@@ -10,17 +10,44 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
-    server {
-        listen 80;
-        server_name srv-web-01;
+# Remédiation à l'attaque de scan détectée par Wazuh (T1595.002)
+# IP source bloquée : 172.19.131.174
+# Source confidentielle : vérifiée dans CMDB, non incluse dans trusted_sources
 
-        server_tokens on;
-        autoindex on;
+limit_req_zone $binary_remote_addr zone=perip:10m rate=10r/s;
 
-        root /usr/share/nginx/html;
-        index index.html;
+server {
+    listen 80;
+    server_name srv-web-01;
 
-        location / {
-            try_files $uri $uri/ =404;
-        }
+    server_tokens off;  # Réduction de surface, info non divulguée
+    autoindex off;      # Supression de l'index public
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Bloquer l'IP source de scan
+    deny 172.19.131.174;
+
+    # Limiter les requêtes par IP
+    limit_req zone=perip burst=20 nodelay;
+
+    # Fermer les chemins sensibles
+    location ~ ^/admin {
+        return 444;
     }
+    location ~ ^/.bash_history {
+        return 444;
+    }
+    location ~ ^/.git {
+        return 444;
+    }
+    location ~ ^/wp-login {
+        return 444;
+    }
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+
