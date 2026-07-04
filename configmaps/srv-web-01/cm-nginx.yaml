@@ -10,12 +10,26 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+    # Bloquer les scans répétés et les chemins sensibles
+
+    # Limitation de débit par IP
+    limit_req_zone $binary_remote_addr zone=perip:10m rate=10r/s;
+
     server {
         listen 80;
         server_name srv-web-01;
 
         server_tokens on;
         autoindex on;
+
+        # Bloquer le scan détecté
+        deny 172.19.131.174;
+
+        # Limiter les requêtes après l'attaque
+        limit_req zone=perip burst=20 nodelay;
+
+        # Fermer les chemins sensibles non présents
+        location ~ ^/\.(cvsignore) { return 444; }
 
         root /usr/share/nginx/html;
         index index.html;
