@@ -19,6 +19,19 @@ data:
         root /usr/share/nginx/html;
         index index.html;
 
+        # Block vulnerability scan from 172.19.131.174
+        deny 172.19.131.174;
+
+        # Limit request rate to 10 requests per second
+        limit_req_zone $binary_remote_addr zone=perip:10m rate=10r/s;
+
+        # Limit requests from 172.19.131.174 to 20 requests with no delay
+        limit_req zone=perip burst=20 nodelay;
+
+        # Close exposed paths that are not legitimate
+        location ~ ^/\.(git|env|svn) { return 444; }
+        location ~ ^/(wp-admin|wp-login|phpmyadmin) { return 444; }
+
         location / {
             try_files $uri $uri/ =404;
         }
