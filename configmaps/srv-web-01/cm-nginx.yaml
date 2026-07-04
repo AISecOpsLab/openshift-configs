@@ -10,6 +10,9 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+    # Rate-limit scanning and block discovery of sensitive paths
+    limit_req_zone $binary_remote_addr zone=perip:10m rate=10r/s;
+
     server {
         listen 80;
         server_name srv-web-01;
@@ -19,6 +22,12 @@ data:
 
         root /usr/share/nginx/html;
         index index.html;
+
+        # Limit requests from suspicious IPs to prevent scan flooding
+        limit_req zone=perip burst=20 nodelay;
+
+        # Block sensitive path discovery
+        location ~ ^/\.(git|env|svn) { return 444; }
 
         location / {
             try_files $uri $uri/ =404;
