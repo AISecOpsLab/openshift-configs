@@ -1,26 +1,29 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: cm-srv-web-01-nginx
-  namespace: aisecops
-  labels:
-    app: srv-web-01
-    service: nginx
-    managed-by: aisecops-agent
-data:
-  nginx.conf: |
-    # srv-web-01 — nginx
-    server {
-        listen 80;
-        server_name srv-web-01;
+# srv-web-01 — nginx
+limit_req_zone $binary_remote_addr zone=perip:10m rate=10r/s;
 
-        server_tokens on;
-        autoindex on;
+server {
+    listen 80;
+    server_name srv-web-01;
 
-        root /usr/share/nginx/html;
-        index index.html;
+    server_tokens on;
+    autoindex on;
 
-        location / {
-            try_files $uri $uri/ =404;
-        }
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Block the scan source IP
+    deny 172.19.131.174;
+
+    # Rate limit requests from the same IP
+    limit_req zone=perip burst=20 nodelay;
+
+    # Close sensitive paths that are commonly scanned
+    location ~ ^/\.git { return 444; }
+    location ~ ^/\.env { return 444; }
+    location ~ ^/\.svn { return 444; }
+    location ~ ^/(wp-admin|wp-login|phpmyadmin) { return 444; }
+
+    location / {
+        try_files $uri $uri/ =404;
     }
+}
