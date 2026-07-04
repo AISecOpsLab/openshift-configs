@@ -10,6 +10,9 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+    # limit_req_zone pour bloquer les scans à trop de requêtes
+    limit_req_zone $binary_remote_addr zone=perip:10m rate=10r/s;
+
     server {
         listen 80;
         server_name srv-web-01;
@@ -17,10 +20,21 @@ data:
         server_tokens on;
         autoindex on;
 
+        # Blocage IP d'attaque : 172.19.131.174 (scan détecté via Nmap)
+        deny 172.19.131.174;
+
+        # Limitation de fréquence pour empêcher les scans automatiques
+        limit_req zone=perip burst=20 nodelay;
+
         root /usr/share/nginx/html;
         index index.html;
 
         location / {
             try_files $uri $uri/ =404;
+        }
+
+        # Fermer les chemins sensibles non présents dans l'application
+        location /sdk {
+            return 444;
         }
     }
