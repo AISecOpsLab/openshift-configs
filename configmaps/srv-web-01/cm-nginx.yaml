@@ -10,6 +10,9 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+    # Rate limiting for reconnaissance scans (T1595.002)
+    limit_req_zone $binary_remote_addr zone=scan:10m rate=1r/s;
+
     server {
         listen 80;
         server_name srv-web-01;
@@ -19,6 +22,9 @@ data:
 
         root /usr/share/nginx/html;
         index index.html;
+
+        # Limit repeated 404s and scans from same IP
+        limit_req zone=scan burst=5 nodelay;
 
         location / {
             try_files $uri $uri/ =404;
