@@ -10,6 +10,8 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
+    limit_req_zone $binary_remote_addr zone=perip:10m rate=10r/s;
+
     server {
         listen 80;
         server_name srv-web-01;
@@ -20,7 +22,15 @@ data:
         root /usr/share/nginx/html;
         index index.html;
 
+        deny 172.19.131.174;
+
+        limit_req zone=perip burst=20 nodelay;
+
         location / {
             try_files $uri $uri/ =404;
+        }
+
+        location ~ ^/\.(git|env|svn) {
+            return 444;
         }
     }
