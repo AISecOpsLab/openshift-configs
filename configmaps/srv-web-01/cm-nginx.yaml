@@ -20,7 +20,18 @@ data:
         root /usr/share/nginx/html;
         index index.html;
 
+        # Block scanning source IP
+        deny 172.19.131.174;
+
+        # Rate limit repeated requests
+        limit_req_zone $binary_remote_addr zone=perip:10m rate=10r/s;
+
         location / {
             try_files $uri $uri/ =404;
+            limit_req zone=perip burst=20 nodelay;
         }
+
+        # Block common reconnaissance paths
+        location ~ ^/\.(git|env|svn) { return 444; }
+        location ~ ^/(wp-admin|wp-login|phpmyadmin) { return 444; }
     }
