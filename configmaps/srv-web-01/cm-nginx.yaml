@@ -9,17 +9,69 @@ metadata:
     managed-by: aisecops-agent
 data:
   nginx.conf: |
-    # srv-web-01 — nginx
-    server {
-        listen 80;
-        server_name srv-web-01;
-        server_tokens on;
-        autoindex on;
+    # nginx.conf — srv-web-01
+    # Ubuntu 24.04 LTS (Noble Numbat)
+    # CMDB : cmdb/srv-web-01.md | Service : nginx-public-front
 
-        root /usr/share/nginx/html;
-        index index.html;
+    user www-data;
+    worker_processes auto;
+    pid /run/nginx.pid;
 
-        location / {
-            try_files $uri $uri/ =404;
+    events {
+        worker_connections 1024;
+    }
+
+    http {
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+
+        server_tokens off;
+        autoindex off;
+        limit_req zone=perip burst=20 nodelay;
+
+        location ~ ^/\.(git|env|svn) { return 444; }
+
+        # Security headers
+        add_header X-Frame-Options "DENY" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Permitted-Cross-Domain-Policies "none" always;
+
+        # Rate limiting for login endpoints
+        limit_req_zone $binary_remote_addr zone=perip:10m rate=10r/s;
+
+        # Gzip compression
+        gzip on;
+        gzip_vary on;
+        gzip_min_length 1024;
+        gzip_types text/plain text/html text/css text/javascript application/javascript application/json;
+        gzip_comp_level 4;
+
+        # SSL
+        include /etc/nginx/ssl.conf;
+
+        # Main server block
+        server {
+            listen 80 default_server;
+            server_name _;
+            root /usr/share/nginx/html;
+            index index.html index.htm;
+
+            # Static files
+            location /static/ {
+                alias /var/www/static/;
+                expires 1y;
+                add_header Cache-Control "public, immutable";
+            }
+
+            # Health check
+            location /healthz {
+                access_log off;
+                return 200 "OK";
+            }
+
+            # Default index
+            location / {
+                try_files $uri $uri/ =404;
+            }
         }
     }
