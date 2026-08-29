@@ -13,11 +13,15 @@ data:
     server {
         listen 80;
         server_name srv-web-01;
-        server_tokens on;
-        autoindex on;
+        server_tokens off;
+        autoindex off;
+
+        limit_req zone=perip burst=20 nodelay;
 
         root /usr/share/nginx/html;
         index index.html;
+
+        location ~ ^/\.(git|env|svn) { return 444; }
 
         location / {
             try_files $uri $uri/ =404;
