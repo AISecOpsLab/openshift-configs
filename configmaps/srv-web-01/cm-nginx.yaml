@@ -10,16 +10,22 @@ metadata:
 data:
   nginx.conf: |
     # srv-web-01 — nginx
-    server {
-        listen 80;
-        server_name srv-web-01;
-        server_tokens on;
-        autoindex on;
+limit_req_zone $binary_remote_addr zone=scan:10m rate=10r/s;
 
-        root /usr/share/nginx/html;
-        index index.html;
+server {
+    listen 80;
+    server_name srv-web-01;
+    server_tokens on;
+    autoindex on;
 
-        location / {
-            try_files $uri $uri/ =404;
-        }
+    root /usr/share/nginx/html;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
     }
+
+    # Rate limit for malicious scans
+    limit_req zone=scan burst=30 nodelay;
+}
+
