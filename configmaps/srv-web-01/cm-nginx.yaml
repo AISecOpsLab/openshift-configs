@@ -13,7 +13,7 @@ data:
     server {
         listen 80;
         server_name srv-web-01;
-        server_tokens on;
+        server_tokens off;
         autoindex on;
 
         root /usr/share/nginx/html;
