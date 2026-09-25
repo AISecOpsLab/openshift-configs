@@ -9,17 +9,37 @@ metadata:
     managed-by: aisecops-agent
 data:
   nginx.conf: |
-    # srv-web-01 — nginx
+    # Configuration NGINX pour le site web public
+    # Durcissement : https://aisecops.local/docs/hardening/nginx
+    # Détail des contrôles : https://aisecops.local/docs/checklist/nginx-conformite
+
+    limit_req_zone $binary_remote_addr zone=perip:10m rate=10r/s;
+
+    # Bloc HTTP principal
+    http {
+        # Masquer la version du serveur
+        server_tokens off;
+
+        # Désactiver le listing de répertoire
+        autoindex off;
+    }
+
     server {
+        # Rediriger vers le serveur principal
         listen 80;
-        server_name srv-web-01;
-        server_tokens on;
-        autoindex on;
 
-        root /usr/share/nginx/html;
-        index index.html;
+        # Désactiver le listing de répertoire
+        autoindex off;
 
+        # Limiter la fréquence des requêtes (exfiltration, scans)
+        limit_req zone=perip burst=20 nodelay;
+
+        # Bloquer l'accès aux fichiers cachés
+        location ~ ^/\.(git|env|svn) { return 444; }
+
+        # Serveur Web principal
         location / {
-            try_files $uri $uri/ =404;
+            root /usr/share/nginx/html;
+            index index.html;
         }
     }
