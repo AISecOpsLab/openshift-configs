@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: srv-monitor-01
   namespace: aisecops
+  annotations:
+    reloader.stakater.com/auto: "true"
   labels:
     app: srv-monitor-01
     role: monitoring
