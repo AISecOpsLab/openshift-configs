@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: srv-ad-01
   namespace: aisecops
+  annotations:
+    reloader.stakater.com/auto: "true"
   labels:
     app: srv-ad-01
     role: domain_controller

@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: srv-files-01
   namespace: aisecops
+  annotations:
+    reloader.stakater.com/auto: "true"
   labels:
     app: srv-files-01
     role: file_server

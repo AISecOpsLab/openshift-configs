@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: srv-bastion-01
   namespace: aisecops
+  annotations:
+    reloader.stakater.com/auto: "true"
   labels:
     app: srv-bastion-01
     role: bastion

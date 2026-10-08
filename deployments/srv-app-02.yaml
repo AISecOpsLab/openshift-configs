@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: srv-app-02
   namespace: aisecops
+  annotations:
+    reloader.stakater.com/auto: "true"
   labels:
     app: srv-app-02
     role: app_server

@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: srv-proxy-01
   namespace: aisecops
+  annotations:
+    reloader.stakater.com/auto: "true"
   labels:
     app: srv-proxy-01
     role: load_balancer

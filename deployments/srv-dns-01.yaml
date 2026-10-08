@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: srv-dns-01
   namespace: aisecops
+  annotations:
+    reloader.stakater.com/auto: "true"
   labels:
     app: srv-dns-01
     role: dns_server

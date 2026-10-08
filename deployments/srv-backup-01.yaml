@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: srv-backup-01
   namespace: aisecops
+  annotations:
+    reloader.stakater.com/auto: "true"
   labels:
     app: srv-backup-01
     role: backup
